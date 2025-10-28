@@ -17,7 +17,7 @@ function Cabinet({ scale, color, rotation }) {
 export default function Viewer() {
   const [scale, setScale] = useState(0.01)
   const [rotation, setRotation] = useState(0)
-  const [color, setColor] = useState('natural')
+  const [color, setColor] = useState('wood')
   const [autoRotate, setAutoRotate] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [isPanelOpen, setIsPanelOpen] = useState(true)
@@ -27,9 +27,9 @@ export default function Viewer() {
   }, [])
 
   const colors = {
-    natural: { name: '오크', color: '#D4A574' },
-    walnut: { name: '월넛', color: '#5C4033' },
-    white: { name: '화이트', color: '#F5F5F0' }
+    wood: { name: '원목', color: '#C19A6B' },
+    resin: { name: '레진', color: '#2C5F7D' },
+    metal: { name: '메탈', color: '#A8A8A8' }
   }
 
   const handleReset = () => {
