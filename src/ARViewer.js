@@ -66,7 +66,7 @@ export default function ARViewer() {
         onClick={() => setIsPanelOpen(!isPanelOpen)}
         style={{
           position: 'absolute',
-          top: isMobile ? '130px' : '160px',
+          top: isMobile ? 'calc(50vh - 150px)' : '160px',
           left: isPanelOpen ? (isMobile ? 'calc(100vw - 50px)' : '270px') : '10px',
           width: '40px',
           height: '40px',
@@ -90,7 +90,7 @@ export default function ARViewer() {
       {/* 컨트롤 패널 */}
       <div style={{
         position: 'absolute',
-        top: isMobile ? '130px' : '160px',
+        top: isMobile ? 'calc(50vh - 150px)' : '160px',
         left: isPanelOpen ? '10px' : '-300px',
         right: isMobile && isPanelOpen ? '10px' : 'auto',
         background: 'rgba(255,255,255,0.98)',

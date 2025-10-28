@@ -21,6 +21,8 @@ export default function Viewer() {
   const [autoRotate, setAutoRotate] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [isPanelOpen, setIsPanelOpen] = useState(true)
+  const panelTop = isMobile ? '50%' : '80px'
+  const buttonTop = isMobile ? '50%' : '80px'
 
   useEffect(() => {
     setIsMobile(window.innerWidth <= 768)
@@ -45,7 +47,7 @@ export default function Viewer() {
         onClick={() => setIsPanelOpen(!isPanelOpen)}
         style={{
           position: 'absolute',
-          top: isMobile ? '70px' : '80px',
+          top: isMobile ? '40%' : '80px',
           left: isPanelOpen ? (isMobile ? 'calc(100vw - 50px)' : '270px') : '10px',
           width: '40px',
           height: '40px',
@@ -69,7 +71,7 @@ export default function Viewer() {
       {/* 컨트롤 패널 */}
       <div style={{
         position: 'absolute',
-        top: isMobile ? '70px' : '80px',
+        top: isMobile ? '40%' : '80px',
         left: isPanelOpen ? '10px' : '-300px',
         right: isMobile && isPanelOpen ? '10px' : 'auto',
         background: 'rgba(255,255,255,0.98)',
