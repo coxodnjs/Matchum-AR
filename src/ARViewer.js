@@ -1,6 +1,6 @@
 import { Canvas } from '@react-three/fiber'
 import { useGLTF, OrbitControls, Environment } from '@react-three/drei'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 function Cabinet({ scale, color, rotation }) {
   const { scene } = useGLTF('/models/test_cabinet.glb')
@@ -19,6 +19,12 @@ export default function ARViewer() {
   const [rotation, setRotation] = useState(0)
   const [color, setColor] = useState('natural')
   const [autoRotate, setAutoRotate] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+  const [isPanelOpen, setIsPanelOpen] = useState(true)
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth <= 768)
+  }, [])
 
   const colors = {
     natural: { name: '오크', color: '#D4A574' },
@@ -37,52 +43,74 @@ export default function ARViewer() {
       {/* AR 안내 */}
       <div style={{
         position: 'absolute',
-        top: '80px',
+        top: isMobile ? '70px' : '80px',
         left: '50%',
         transform: 'translateX(-50%)',
         background: 'rgba(0,0,0,0.9)',
         color: 'white',
-        padding: '15px 25px',
-        borderRadius: '10px',
-        zIndex: 1000,
+        padding: isMobile ? '8px 12px' : '12px 20px',
+        borderRadius: '6px',
+        zIndex: 999,
         textAlign: 'center',
       }}>
-        <div style={{ fontSize: '16px', fontWeight: 'bold' }}>
+        <div style={{ fontSize: isMobile ? '11px' : '14px', fontWeight: 'bold' }}>
           📱 AR 미리보기 모드
         </div>
-        <div style={{ fontSize: '12px', color: '#aaa', marginTop: '5px' }}>
+        <div style={{ fontSize: isMobile ? '9px' : '11px', color: '#aaa', marginTop: '2px' }}>
           실제 AR은 스마트폰에서만 작동합니다
         </div>
       </div>
 
+      {/* 접기/펼치기 버튼 */}
+      <button
+        onClick={() => setIsPanelOpen(!isPanelOpen)}
+        style={{
+          position: 'absolute',
+          top: isMobile ? '130px' : '160px',
+          left: isPanelOpen ? (isMobile ? 'calc(100vw - 50px)' : '270px') : '10px',
+          width: '40px',
+          height: '40px',
+          background: 'rgba(0,0,0,0.8)',
+          color: 'white',
+          border: 'none',
+          borderRadius: '50%',
+          cursor: 'pointer',
+          fontSize: '18px',
+          zIndex: 1001,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          transition: 'left 0.3s',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
+        }}
+      >
+        {isPanelOpen ? '◀' : '▶'}
+      </button>
+
       {/* 컨트롤 패널 */}
       <div style={{
         position: 'absolute',
-        top: '180px',
-        left: '20px',
-        background: 'rgba(255,255,255,0.95)',
-        padding: '20px',
-        borderRadius: '15px',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+        top: isMobile ? '130px' : '160px',
+        left: isPanelOpen ? '10px' : '-300px',
+        right: isMobile && isPanelOpen ? '10px' : 'auto',
+        background: 'rgba(255,255,255,0.98)',
+        padding: isMobile ? '8px' : '12px',
+        borderRadius: '8px',
+        boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
         zIndex: 1000,
-        minWidth: '250px',
+        minWidth: isMobile ? 'auto' : '240px',
+        maxWidth: isMobile ? 'calc(100vw - 20px)' : '280px',
+        transition: 'left 0.3s',
       }}>
         {/* 크기 조절 */}
-        <div style={{ marginBottom: '25px' }}>
+        <div style={{ marginBottom: isMobile ? '10px' : '15px' }}>
           <div style={{ 
-            fontSize: '14px', 
+            fontSize: isMobile ? '10px' : '12px',
             fontWeight: 'bold', 
-            marginBottom: '10px',
+            marginBottom: '5px',
             color: '#333'
           }}>
-            📏 크기 조절
-          </div>
-          <div style={{ 
-            fontSize: '12px', 
-            color: '#666', 
-            marginBottom: '8px' 
-          }}>
-            {Math.round(scale * 100)}%
+            📏 크기 {Math.round(scale * 100)}%
           </div>
           <input
             type="range"
@@ -91,42 +119,42 @@ export default function ARViewer() {
             step="0.001"
             value={scale}
             onChange={(e) => setScale(parseFloat(e.target.value))}
-            style={{ width: '100%' }}
+            style={{ width: '100%', height: isMobile ? '20px' : '24px' }}
           />
         </div>
 
         {/* 색상 선택 */}
-        <div style={{ marginBottom: '25px' }}>
+        <div style={{ marginBottom: isMobile ? '10px' : '15px' }}>
           <div style={{ 
-            fontSize: '14px', 
+            fontSize: isMobile ? '10px' : '12px',
             fontWeight: 'bold', 
-            marginBottom: '10px',
+            marginBottom: '5px',
             color: '#333'
           }}>
-            🎨 색상 선택
+            🎨 색상
           </div>
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <div style={{ display: 'flex', gap: isMobile ? '4px' : '6px' }}>
             {Object.entries(colors).map(([key, { name, color: c }]) => (
               <button
                 key={key}
                 onClick={() => setColor(key)}
                 style={{
                   flex: 1,
-                  padding: '10px',
-                  border: color === key ? '3px solid #1a1a1a' : '2px solid #ddd',
-                  borderRadius: '8px',
+                  padding: isMobile ? '4px' : '6px',
+                  border: color === key ? '2px solid #1a1a1a' : '1px solid #ddd',
+                  borderRadius: '4px',
                   background: 'white',
                   cursor: 'pointer',
-                  fontSize: '12px',
+                  fontSize: isMobile ? '8px' : '10px',
                   fontWeight: color === key ? 'bold' : 'normal',
                 }}
               >
                 <div style={{
                   width: '100%',
-                  height: '30px',
+                  height: isMobile ? '16px' : '20px',
                   background: c,
-                  borderRadius: '5px',
-                  marginBottom: '5px'
+                  borderRadius: '3px',
+                  marginBottom: '2px'
                 }}></div>
                 {name}
               </button>
@@ -135,27 +163,27 @@ export default function ARViewer() {
         </div>
 
         {/* 회전 컨트롤 */}
-        <div style={{ marginBottom: '25px' }}>
+        <div style={{ marginBottom: isMobile ? '10px' : '15px' }}>
           <div style={{ 
-            fontSize: '14px', 
+            fontSize: isMobile ? '10px' : '12px',
             fontWeight: 'bold', 
-            marginBottom: '10px',
+            marginBottom: '5px',
             color: '#333'
           }}>
             🔄 회전
           </div>
-          <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+          <div style={{ display: 'flex', gap: isMobile ? '4px' : '6px', marginBottom: '5px' }}>
             <button
               onClick={() => setRotation(r => r - 45)}
               style={{
                 flex: 1,
-                padding: '10px',
+                padding: isMobile ? '6px' : '8px',
                 background: '#1a1a1a',
                 color: 'white',
                 border: 'none',
-                borderRadius: '8px',
+                borderRadius: '4px',
                 cursor: 'pointer',
-                fontSize: '14px',
+                fontSize: isMobile ? '10px' : '12px',
                 fontWeight: 'bold',
               }}
             >
@@ -165,13 +193,13 @@ export default function ARViewer() {
               onClick={() => setRotation(r => r + 45)}
               style={{
                 flex: 1,
-                padding: '10px',
+                padding: isMobile ? '6px' : '8px',
                 background: '#1a1a1a',
                 color: 'white',
                 border: 'none',
-                borderRadius: '8px',
+                borderRadius: '4px',
                 cursor: 'pointer',
-                fontSize: '14px',
+                fontSize: isMobile ? '10px' : '12px',
                 fontWeight: 'bold',
               }}
             >
@@ -181,7 +209,7 @@ export default function ARViewer() {
           <label style={{ 
             display: 'flex', 
             alignItems: 'center', 
-            fontSize: '12px',
+            fontSize: isMobile ? '9px' : '11px',
             cursor: 'pointer',
             color: '#666'
           }}>
@@ -189,7 +217,7 @@ export default function ARViewer() {
               type="checkbox"
               checked={autoRotate}
               onChange={(e) => setAutoRotate(e.target.checked)}
-              style={{ marginRight: '8px' }}
+              style={{ marginRight: '4px' }}
             />
             자동 회전
           </label>
@@ -200,13 +228,13 @@ export default function ARViewer() {
           onClick={handleReset}
           style={{
             width: '100%',
-            padding: '12px',
+            padding: isMobile ? '8px' : '10px',
             background: '#666',
             color: 'white',
             border: 'none',
-            borderRadius: '8px',
+            borderRadius: '4px',
             cursor: 'pointer',
-            fontSize: '14px',
+            fontSize: isMobile ? '10px' : '12px',
             fontWeight: 'bold',
           }}
         >
@@ -217,18 +245,19 @@ export default function ARViewer() {
       {/* 제품 정보 */}
       <div style={{
         position: 'absolute',
-        bottom: '20px',
-        left: '20px',
+        bottom: '15px',
+        left: '10px',
+        right: isMobile ? '10px' : 'auto',
         background: 'rgba(255,255,255,0.95)',
-        padding: '15px 20px',
-        borderRadius: '10px',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+        padding: isMobile ? '8px 10px' : '12px 15px',
+        borderRadius: '6px',
+        boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
         zIndex: 1000,
       }}>
-        <div style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '5px' }}>
+        <div style={{ fontSize: isMobile ? '11px' : '14px', fontWeight: 'bold', marginBottom: '2px' }}>
           맞춤장 (Matchum Cabinet)
         </div>
-        <div style={{ fontSize: '12px', color: '#666' }}>
+        <div style={{ fontSize: isMobile ? '9px' : '11px', color: '#666' }}>
           한옥 스타일 · {colors[color].name}
         </div>
       </div>

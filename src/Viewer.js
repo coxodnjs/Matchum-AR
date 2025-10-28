@@ -20,6 +20,7 @@ export default function Viewer() {
   const [color, setColor] = useState('natural')
   const [autoRotate, setAutoRotate] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
+  const [isPanelOpen, setIsPanelOpen] = useState(true)
 
   useEffect(() => {
     setIsMobile(window.innerWidth <= 768)
@@ -39,36 +40,56 @@ export default function Viewer() {
 
   return (
     <div style={{ width: '100vw', height: '100vh', background: '#f5f5f5' }}>
+      {/* 접기/펼치기 버튼 */}
+      <button
+        onClick={() => setIsPanelOpen(!isPanelOpen)}
+        style={{
+          position: 'absolute',
+          top: isMobile ? '70px' : '80px',
+          left: isPanelOpen ? (isMobile ? 'calc(100vw - 50px)' : '270px') : '10px',
+          width: '40px',
+          height: '40px',
+          background: 'rgba(0,0,0,0.8)',
+          color: 'white',
+          border: 'none',
+          borderRadius: '50%',
+          cursor: 'pointer',
+          fontSize: '18px',
+          zIndex: 1001,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          transition: 'left 0.3s',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
+        }}
+      >
+        {isPanelOpen ? '◀' : '▶'}
+      </button>
+
       {/* 컨트롤 패널 */}
       <div style={{
         position: 'absolute',
         top: isMobile ? '70px' : '80px',
-        left: '10px',
-        right: isMobile ? '10px' : 'auto',
-        background: 'rgba(255,255,255,0.95)',
-        padding: isMobile ? '10px' : '20px',
-        borderRadius: isMobile ? '8px' : '15px',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+        left: isPanelOpen ? '10px' : '-300px',
+        right: isMobile && isPanelOpen ? '10px' : 'auto',
+        background: 'rgba(255,255,255,0.98)',
+        padding: isMobile ? '8px' : '12px',
+        borderRadius: '8px',
+        boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
         zIndex: 1000,
-        minWidth: isMobile ? 'auto' : '250px',
-        maxWidth: isMobile ? 'calc(100vw - 20px)' : '300px',
+        minWidth: isMobile ? 'auto' : '240px',
+        maxWidth: isMobile ? 'calc(100vw - 20px)' : '280px',
+        transition: 'left 0.3s',
       }}>
         {/* 크기 조절 */}
-        <div style={{ marginBottom: isMobile ? '15px' : '25px' }}>
-          <div style={{ 
-            fontSize: isMobile ? '11px' : '14px',
-            fontWeight: 'bold', 
-            marginBottom: '8px',
-            color: '#333'
-          }}>
-            📏 크기 조절
-          </div>
+        <div style={{ marginBottom: isMobile ? '10px' : '15px' }}>
           <div style={{ 
             fontSize: isMobile ? '10px' : '12px',
-            color: '#666', 
-            marginBottom: '6px' 
+            fontWeight: 'bold', 
+            marginBottom: '5px',
+            color: '#333'
           }}>
-            {Math.round(scale * 100)}%
+            📏 크기 {Math.round(scale * 100)}%
           </div>
           <input
             type="range"
@@ -77,42 +98,42 @@ export default function Viewer() {
             step="0.001"
             value={scale}
             onChange={(e) => setScale(parseFloat(e.target.value))}
-            style={{ width: '100%' }}
+            style={{ width: '100%', height: isMobile ? '20px' : '24px' }}
           />
         </div>
 
         {/* 색상 선택 */}
-        <div style={{ marginBottom: isMobile ? '15px' : '25px' }}>
+        <div style={{ marginBottom: isMobile ? '10px' : '15px' }}>
           <div style={{ 
-            fontSize: isMobile ? '11px' : '14px',
+            fontSize: isMobile ? '10px' : '12px',
             fontWeight: 'bold', 
-            marginBottom: '8px',
+            marginBottom: '5px',
             color: '#333'
           }}>
-            🎨 색상 선택
+            🎨 색상
           </div>
-          <div style={{ display: 'flex', gap: isMobile ? '6px' : '10px' }}>
+          <div style={{ display: 'flex', gap: isMobile ? '4px' : '6px' }}>
             {Object.entries(colors).map(([key, { name, color: c }]) => (
               <button
                 key={key}
                 onClick={() => setColor(key)}
                 style={{
                   flex: 1,
-                  padding: isMobile ? '6px' : '10px',
+                  padding: isMobile ? '4px' : '6px',
                   border: color === key ? '2px solid #1a1a1a' : '1px solid #ddd',
-                  borderRadius: '6px',
+                  borderRadius: '4px',
                   background: 'white',
                   cursor: 'pointer',
-                  fontSize: isMobile ? '9px' : '12px',
+                  fontSize: isMobile ? '8px' : '10px',
                   fontWeight: color === key ? 'bold' : 'normal',
                 }}
               >
                 <div style={{
                   width: '100%',
-                  height: isMobile ? '20px' : '30px',
+                  height: isMobile ? '16px' : '20px',
                   background: c,
-                  borderRadius: '4px',
-                  marginBottom: '4px'
+                  borderRadius: '3px',
+                  marginBottom: '2px'
                 }}></div>
                 {name}
               </button>
@@ -121,27 +142,27 @@ export default function Viewer() {
         </div>
 
         {/* 회전 컨트롤 */}
-        <div style={{ marginBottom: isMobile ? '15px' : '25px' }}>
+        <div style={{ marginBottom: isMobile ? '10px' : '15px' }}>
           <div style={{ 
-            fontSize: isMobile ? '11px' : '14px',
+            fontSize: isMobile ? '10px' : '12px',
             fontWeight: 'bold', 
-            marginBottom: '8px',
+            marginBottom: '5px',
             color: '#333'
           }}>
             🔄 회전
           </div>
-          <div style={{ display: 'flex', gap: isMobile ? '6px' : '10px', marginBottom: '8px' }}>
+          <div style={{ display: 'flex', gap: isMobile ? '4px' : '6px', marginBottom: '5px' }}>
             <button
               onClick={() => setRotation(r => r - 45)}
               style={{
                 flex: 1,
-                padding: isMobile ? '8px' : '10px',
+                padding: isMobile ? '6px' : '8px',
                 background: '#1a1a1a',
                 color: 'white',
                 border: 'none',
-                borderRadius: '6px',
+                borderRadius: '4px',
                 cursor: 'pointer',
-                fontSize: isMobile ? '11px' : '14px',
+                fontSize: isMobile ? '10px' : '12px',
                 fontWeight: 'bold',
               }}
             >
@@ -151,13 +172,13 @@ export default function Viewer() {
               onClick={() => setRotation(r => r + 45)}
               style={{
                 flex: 1,
-                padding: isMobile ? '8px' : '10px',
+                padding: isMobile ? '6px' : '8px',
                 background: '#1a1a1a',
                 color: 'white',
                 border: 'none',
-                borderRadius: '6px',
+                borderRadius: '4px',
                 cursor: 'pointer',
-                fontSize: isMobile ? '11px' : '14px',
+                fontSize: isMobile ? '10px' : '12px',
                 fontWeight: 'bold',
               }}
             >
@@ -167,7 +188,7 @@ export default function Viewer() {
           <label style={{ 
             display: 'flex', 
             alignItems: 'center', 
-            fontSize: isMobile ? '10px' : '12px',
+            fontSize: isMobile ? '9px' : '11px',
             cursor: 'pointer',
             color: '#666'
           }}>
@@ -175,7 +196,7 @@ export default function Viewer() {
               type="checkbox"
               checked={autoRotate}
               onChange={(e) => setAutoRotate(e.target.checked)}
-              style={{ marginRight: '6px' }}
+              style={{ marginRight: '4px' }}
             />
             자동 회전
           </label>
@@ -186,13 +207,13 @@ export default function Viewer() {
           onClick={handleReset}
           style={{
             width: '100%',
-            padding: isMobile ? '10px' : '12px',
+            padding: isMobile ? '8px' : '10px',
             background: '#666',
             color: 'white',
             border: 'none',
-            borderRadius: '6px',
+            borderRadius: '4px',
             cursor: 'pointer',
-            fontSize: isMobile ? '11px' : '14px',
+            fontSize: isMobile ? '10px' : '12px',
             fontWeight: 'bold',
           }}
         >
@@ -203,19 +224,19 @@ export default function Viewer() {
       {/* 제품 정보 */}
       <div style={{
         position: 'absolute',
-        bottom: '20px',
+        bottom: '15px',
         left: '10px',
         right: isMobile ? '10px' : 'auto',
         background: 'rgba(255,255,255,0.95)',
-        padding: isMobile ? '10px 12px' : '15px 20px',
-        borderRadius: '8px',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+        padding: isMobile ? '8px 10px' : '12px 15px',
+        borderRadius: '6px',
+        boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
         zIndex: 1000,
       }}>
-        <div style={{ fontSize: isMobile ? '13px' : '16px', fontWeight: 'bold', marginBottom: '3px' }}>
+        <div style={{ fontSize: isMobile ? '11px' : '14px', fontWeight: 'bold', marginBottom: '2px' }}>
           맞춤장 (Matchum Cabinet)
         </div>
-        <div style={{ fontSize: isMobile ? '10px' : '12px', color: '#666' }}>
+        <div style={{ fontSize: isMobile ? '9px' : '11px', color: '#666' }}>
           한옥 스타일 · {colors[color].name}
         </div>
       </div>
