@@ -1,5 +1,5 @@
 import { Canvas } from '@react-three/fiber'
-import { OrbitControls, useGLTF, Environment } from '@react-three/drei'
+import { useGLTF, OrbitControls, Environment } from '@react-three/drei'
 import { useState, useEffect } from 'react'
 
 function Cabinet({ scale, color, rotation }) {
@@ -14,7 +14,7 @@ function Cabinet({ scale, color, rotation }) {
   )
 }
 
-export default function Viewer() {
+export default function ARViewer() {
   const [scale, setScale] = useState(0.01)
   const [rotation, setRotation] = useState(0)
   const [color, setColor] = useState('natural')
@@ -43,85 +43,69 @@ export default function Viewer() {
 
   return (
     <div style={{ width: '100vw', height: '100vh', background: '#f5f5f5', position: 'relative' }}>
-      {/* 3D 뷰어 영역 */}
+      <div style={{
+        position: 'absolute',
+        top: '80px',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        background: 'rgba(0,0,0,0.9)',
+        color: 'white',
+        padding: isMobile ? '8px 15px' : '12px 20px',
+        borderRadius: '8px',
+        zIndex: 999,
+        textAlign: 'center',
+      }}>
+        <div style={{ fontSize: isMobile ? '11px' : '14px', fontWeight: 'bold' }}>
+          📱 AR 미리보기 모드
+        </div>
+        <div style={{ fontSize: isMobile ? '9px' : '11px', color: '#aaa', marginTop: '2px' }}>
+          실제 AR은 스마트폰에서만 작동합니다
+        </div>
+      </div>
+
       <div style={{
         position: 'absolute',
         top: 0,
-        left: isPanelOpen && isMobile ? '0' : '0',
+        left: 0,
         right: 0,
         bottom: 0,
-        transition: 'left 0.3s',
       }}>
-        <Canvas camera={{ position: [3, 2, 4], fov: 50 }}>
-          <ambientLight intensity={0.6} />
+        <Canvas camera={{ position: [2, 1.5, 3], fov: 50 }}>
+          <ambientLight intensity={0.8} />
           <directionalLight position={[5, 5, 5]} intensity={1} />
           <Environment preset="apartment" />
           <Cabinet scale={scale} color={color} rotation={rotation} />
-          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.5, 0]}>
-            <planeGeometry args={[10, 10]} />
-            <meshStandardMaterial color="#cccccc" />
-          </mesh>
           <OrbitControls 
             autoRotate={autoRotate}
             autoRotateSpeed={2}
-            target={[0, 0.5, 0]}
           />
         </Canvas>
       </div>
 
-      {/* 상단 버튼 그룹 (왼쪽 정렬) */}
-      <div style={{
-        position: 'absolute',
-        top: buttonGap,
-        left: buttonGap,
-        display: 'flex',
-        gap: buttonGap,
-        zIndex: 1001,
-      }}>
-        {/* 패널 토글 버튼 */}
-        <button
-          onClick={() => setIsPanelOpen(!isPanelOpen)}
-          style={{
-            width: buttonSize,
-            height: buttonSize,
-            background: 'rgba(0,0,0,0.8)',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            fontSize: isMobile ? '18px' : '20px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
-          }}
-        >
-          {isPanelOpen ? '◀' : '▶'}
-        </button>
+      <button
+        onClick={() => setIsPanelOpen(!isPanelOpen)}
+        style={{
+          position: 'absolute',
+          top: buttonGap,
+          left: buttonGap,
+          width: buttonSize,
+          height: buttonSize,
+          background: 'rgba(0,0,0,0.8)',
+          color: 'white',
+          border: 'none',
+          borderRadius: '8px',
+          cursor: 'pointer',
+          fontSize: isMobile ? '18px' : '20px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
+          zIndex: 1001,
+        }}
+      >
+        {isPanelOpen ? '◀' : '▶'}
+      </button>
 
-        {/* 3D 뷰어 버튼 (현재 페이지) */}
-        <button
-          style={{
-            width: buttonSize,
-            height: buttonSize,
-            background: '#1a1a1a',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'default',
-            fontSize: isMobile ? '10px' : '11px',
-            fontWeight: 'bold',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
-          }}
-        >
-          3D
-        </button>
-      </div>
-
-      {/* 컨트롤 패널 */}
       <div style={{
         position: 'absolute',
         top: isMobile ? `calc(${buttonSize} + ${buttonGap} * 2 + 5px)` : `calc(${buttonSize} + ${buttonGap} * 2)`,
@@ -136,7 +120,6 @@ export default function Viewer() {
         maxHeight: 'calc(100vh - 100px)',
         overflowY: 'auto',
       }}>
-        {/* 크기 조절 */}
         <div style={{ marginBottom: '12px' }}>
           <div style={{ 
             fontSize: isMobile ? '10px' : '11px',
@@ -157,7 +140,6 @@ export default function Viewer() {
           />
         </div>
 
-        {/* 색상 선택 */}
         <div style={{ marginBottom: '12px' }}>
           <div style={{ 
             fontSize: isMobile ? '10px' : '11px',
@@ -198,7 +180,6 @@ export default function Viewer() {
           </div>
         </div>
 
-        {/* 회전 컨트롤 */}
         <div style={{ marginBottom: '12px' }}>
           <div style={{ 
             fontSize: isMobile ? '10px' : '11px',
@@ -259,7 +240,6 @@ export default function Viewer() {
           </label>
         </div>
 
-        {/* 리셋 버튼 */}
         <button
           onClick={handleReset}
           style={{
@@ -278,7 +258,6 @@ export default function Viewer() {
         </button>
       </div>
 
-      {/* 제품 정보 */}
       <div style={{
         position: 'absolute',
         bottom: '15px',

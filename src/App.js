@@ -7,28 +7,43 @@ function App() {
 
   return (
     <div>
-      {/* AR 모드 전환 버튼 (오른쪽 상단) */}
-      <button
-        onClick={() => setMode(mode === '3d' ? 'ar' : '3d')}
-        style={{
-          position: 'fixed',
-          top: window.innerWidth <= 768 ? '8px' : '10px',
-          right: window.innerWidth <= 768 ? '8px' : '10px',
-          width: window.innerWidth <= 768 ? '45px' : '50px',
-          height: window.innerWidth <= 768 ? '45px' : '50px',
-          background: mode === 'ar' ? '#1a1a1a' : 'rgba(100,100,100,0.8)',
-          color: 'white',
-          border: 'none',
-          borderRadius: '8px',
-          cursor: 'pointer',
-          fontSize: window.innerWidth <= 768 ? '10px' : '11px',
-          fontWeight: 'bold',
-          zIndex: 1002,
-          boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
-        }}
-      >
-        AR
-      </button>
+      <div style={{
+        position: 'fixed',
+        top: '20px',
+        right: '20px',
+        zIndex: 1002,
+        display: 'flex',
+        gap: '10px',
+      }}>
+        <button
+          onClick={() => setMode('3d')}
+          style={{
+            padding: '10px 20px',
+            backgroundColor: mode === '3d' ? '#1a1a1a' : '#666',
+            color: 'white',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: 'pointer',
+            fontWeight: 'bold',
+          }}
+        >
+          3D 뷰어
+        </button>
+        <button
+          onClick={() => setMode('ar')}
+          style={{
+            padding: '10px 20px',
+            backgroundColor: mode === 'ar' ? '#1a1a1a' : '#666',
+            color: 'white',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: 'pointer',
+            fontWeight: 'bold',
+          }}
+        >
+          AR 모드
+        </button>
+      </div>
 
       {mode === '3d' ? <Viewer /> : <ARViewer />}
     </div>
