@@ -15,7 +15,7 @@ function Cabinet({ scale, color, rotation }) {
 }
 
 export default function ARViewer() {
-  const [scale, setScale] = useState(0.01)
+  const [scale, setScale] = useState(0.1)
   const [rotation, setRotation] = useState(0)
   const [color, setColor] = useState('wood')
   const [autoRotate, setAutoRotate] = useState(false)
@@ -131,9 +131,9 @@ export default function ARViewer() {
           </div>
           <input
             type="range"
-            min="0.005"
-            max="0.03"
-            step="0.001"
+            min="0.01"
+            max="0.3"
+            step="0.01"
             value={scale}
             onChange={(e) => setScale(parseFloat(e.target.value))}
             style={{ width: '100%', height: '20px' }}
