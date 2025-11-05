@@ -15,7 +15,7 @@ function Cabinet({ scale, color, rotation }) {
 }
 
 export default function ARViewer() {
-  const [scale, setScale] = useState(6)
+  const [scale, setScale] = useState(5)
   const [rotation, setRotation] = useState(0)
   const [color, setColor] = useState('wood')
   const [autoRotate, setAutoRotate] = useState(false)
@@ -33,7 +33,7 @@ export default function ARViewer() {
   }
 
   const handleReset = () => {
-    setScale(6)
+    setScale(5)
     setRotation(0)
     setAutoRotate(false)
   }
