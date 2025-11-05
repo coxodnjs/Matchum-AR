@@ -15,7 +15,7 @@ function Cabinet({ scale, color, rotation }) {
 }
 
 export default function Viewer() {
-  const [scale, setScale] = useState(7.5)
+  const [scale, setScale] = useState(6)
   const [rotation, setRotation] = useState(0)
   const [color, setColor] = useState('wood')
   const [autoRotate, setAutoRotate] = useState(false)
@@ -33,7 +33,7 @@ export default function Viewer() {
   }
 
   const handleReset = () => {
-    setScale(7.5)
+    setScale(6)
     setRotation(0)
     setAutoRotate(false)
   }
@@ -105,25 +105,6 @@ export default function Viewer() {
         maxHeight: 'calc(100vh - 100px)',
         overflowY: 'auto',
       }}>
-        <div style={{ marginBottom: '12px' }}>
-          <div style={{ 
-            fontSize: isMobile ? '10px' : '11px',
-            fontWeight: 'bold', 
-            marginBottom: '6px',
-            color: '#333'
-          }}>
-            📏 크기 {Math.round(scale * 100)}%
-          </div>
-          <input
-            type="range"
-            min="0.01"
-            max="0.3"
-            step="0.01"
-            value={scale}
-            onChange={(e) => setScale(parseFloat(e.target.value))}
-            style={{ width: '100%', height: '20px' }}
-          />
-        </div>
 
         <div style={{ marginBottom: '12px' }}>
           <div style={{ 
