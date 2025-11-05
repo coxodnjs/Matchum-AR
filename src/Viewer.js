@@ -15,7 +15,7 @@ function Cabinet({ scale, color, rotation }) {
 }
 
 export default function Viewer() {
-  const [scale, setScale] = useState(1)
+  const [scale, setScale] = useState(1.5)
   const [rotation, setRotation] = useState(0)
   const [color, setColor] = useState('wood')
   const [autoRotate, setAutoRotate] = useState(false)
@@ -33,7 +33,7 @@ export default function Viewer() {
   }
 
   const handleReset = () => {
-    setScale(1)
+    setScale(1.5)
     setRotation(0)
     setAutoRotate(false)
   }
