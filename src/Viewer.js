@@ -3,7 +3,7 @@ import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Environment, useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
 
-function Model({ color, environment }) {
+function Model({ color }) {
   const modelPath = {
     wood: '/models/Matchum_cabinet(wood).glb',
     resin: '/models/Matchum_cabinet(resin).glb',
@@ -28,22 +28,9 @@ function Model({ color, environment }) {
 
 export default function Viewer() {
   const [color, setColor] = useState('wood')
-  const [environment, setEnvironment] = useState('studio')
   const [autoRotate, setAutoRotate] = useState(false)
   const [isPanelOpen, setIsPanelOpen] = useState(true)
   const controlsRef = useRef()
-
-  // 배경 옵션 정의
-  const environments = [
-    { id: 'studio', name: '스튜디오', icon: '🎬', desc: '깔끔한 제품 촬영' },
-    { id: 'park', name: '공원', icon: '🏞️', desc: '푸릇푸릇한 자연' },
-    { id: 'forest', name: '숲', icon: '🌲', desc: '나무 사이' },
-    { id: 'night', name: '밤하늘', icon: '🌙', desc: '별이 빛나는' },
-    { id: 'sunset', name: '석양', icon: '🌅', desc: '따뜻한 노을' },
-    { id: 'dawn', name: '새벽', icon: '🌄', desc: '고요한 아침' },
-    { id: 'apartment', name: '실내', icon: '🏠', desc: '주거 공간' },
-    { id: 'city', name: '도시', icon: '🏙️', desc: '도심 야경' }
-  ]
 
   const handleRotate = (direction) => {
     if (controlsRef.current) {
@@ -100,73 +87,6 @@ export default function Viewer() {
                 }}
               >
                 {mat.name}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* 배경 선택 - 새로 추가 */}
-        <div style={{ marginBottom: '30px' }}>
-          <h3 style={{ marginBottom: '10px', fontSize: '16px' }}>배경 환경</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-            {environments.map((env) => (
-              <button
-                key={env.id}
-                onClick={() => setEnvironment(env.id)}
-                style={{
-                  padding: '12px 8px',
-                  background: environment === env.id 
-                    ? 'rgba(255,255,255,0.3)' 
-                    : 'rgba(255,255,255,0.1)',
-                  color: 'white',
-                  border: environment === env.id ? '2px solid white' : '1px solid rgba(255,255,255,0.2)',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  fontWeight: environment === env.id ? 'bold' : 'normal',
-                  transition: 'all 0.2s',
-                  fontSize: '12px',
-                  textAlign: 'center'
-                }}
-              >
-                <div style={{ fontSize: '20px', marginBottom: '4px' }}>{env.icon}</div>
-                <div style={{ fontWeight: 'bold' }}>{env.name}</div>
-                <div style={{ fontSize: '10px', opacity: 0.8 }}>{env.desc}</div>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* 배경 환경 - 새로 추가! */}
-        <div style={{ marginBottom: '30px' }}>
-          <h3 style={{ marginBottom: '10px', fontSize: '16px' }}>배경 환경</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-            {[
-              { id: 'studio', name: '스튜디오', icon: '🎬' },
-              { id: 'park', name: '공원', icon: '🏞️' },
-              { id: 'forest', name: '숲', icon: '🌲' },
-              { id: 'night', name: '밤하늘', icon: '🌙' },
-              { id: 'sunset', name: '석양', icon: '🌅' },
-              { id: 'dawn', name: '새벽', icon: '🌄' },
-              { id: 'apartment', name: '실내', icon: '🏠' },
-              { id: 'city', name: '도시', icon: '🏙️' }
-            ].map((env) => (
-              <button
-                key={env.id}
-                onClick={() => setEnvironment(env.id)}
-                style={{
-                  padding: '10px',
-                  background: environment === env.id 
-                    ? 'rgba(255,255,255,0.3)' 
-                    : 'rgba(255,255,255,0.1)',
-                  color: 'white',
-                  border: environment === env.id ? '2px solid white' : 'none',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  fontSize: '12px'
-                }}
-              >
-                <div style={{ fontSize: '20px' }}>{env.icon}</div>
-                <div>{env.name}</div>
               </button>
             ))}
           </div>
@@ -263,10 +183,10 @@ export default function Viewer() {
         <Suspense fallback={null}>
           <ambientLight intensity={1.0} />
           <directionalLight position={[5, 5, 5]} intensity={0.5} />
-          <Model color={color} environment={environment} />
+          <Model color={color} />
           
-          {/* 배경 환경 - 동적으로 변경됨 */}
-          <Environment preset={environment} background />
+          {/* 커스텀 HDRI 배경 */}
+          <Environment files="/hdri/night_sky.hdr" background />
           
           <OrbitControls
             ref={controlsRef}
@@ -294,8 +214,6 @@ export default function Viewer() {
         }}
       >
         재질: <strong>{color === 'wood' ? '원목' : color === 'resin' ? '레진' : '메탈'}</strong>
-        {' | '}
-        배경: <strong>{environments.find(e => e.id === environment)?.name}</strong>
       </div>
     </div>
   )
