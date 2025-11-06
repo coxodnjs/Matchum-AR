@@ -73,17 +73,26 @@ export default function Viewer() {
           gl={{ 
             antialias: true,
             toneMapping: THREE.ACESFilmicToneMapping,
+            toneMappingExposure: 1.0,
             outputColorSpace: THREE.SRGBColorSpace,
             pixelRatio: Math.min(window.devicePixelRatio, 2)
           }}
         >
-          <ambientLight intensity={0.6} />
-          <directionalLight position={[5, 5, 5]} intensity={1} />
-          <Environment preset="apartment" />
+          <ambientLight intensity={1.0} />
+          <directionalLight 
+            position={[5, 5, 5]} 
+            intensity={0.5}
+            color="#ffffff"
+          />
+          <Environment preset="studio" />
           <Cabinet scale={scale} color={color} rotation={rotation} />
           <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.5, 0]}>
             <planeGeometry args={[10, 10]} />
-            <meshStandardMaterial color="#cccccc" />
+            <meshStandardMaterial 
+              color="#ffffff" 
+              roughness={1.0}
+              metalness={0.0}
+            />
           </mesh>
           <OrbitControls 
             autoRotate={autoRotate}
