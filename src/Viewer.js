@@ -186,7 +186,7 @@ export default function Viewer() {
           <Model color={color} />
           
           {/* 커스텀 HDRI 배경 */}
-          <Environment files="/hdri/night_sky.hdr" background />
+          <Environment preset="studio" background />
           
           <OrbitControls
             ref={controlsRef}
