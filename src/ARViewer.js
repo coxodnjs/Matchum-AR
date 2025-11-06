@@ -1,9 +1,27 @@
+import * as THREE from 'three'
 import { Canvas } from '@react-three/fiber'
 import { useGLTF, OrbitControls, Environment } from '@react-three/drei'
 import { useState, useEffect } from 'react'
 
 function Cabinet({ scale, color, rotation }) {
-  const { scene } = useGLTF('/models/test_cabinet.glb')
+  // 재질별 GLB 파일 매핑
+  const modelPath = {
+    wood: '/models/Matchum_cabinet(wood).glb',
+    resin: '/models/Matchum_cabinet(resin).glb',
+    metal: '/models/Matchum_cabinet(metal).glb'
+  }
+  
+  const { scene } = useGLTF(modelPath[color])
+  
+  // 화질 개선
+  scene.traverse((child) => {
+    if (child.isMesh && child.material) {
+      child.material.needsUpdate = true
+      if (child.material.map) {
+        child.material.map.anisotropy = 16
+      }
+    }
+  })
   
   return (
     <primitive 
@@ -70,7 +88,15 @@ export default function ARViewer() {
         right: 0,
         bottom: 0,
       }}>
-        <Canvas camera={{ position: [2, 1.5, 3], fov: 50 }}>
+        <Canvas 
+          camera={{ position: [2, 1.5, 3], fov: 50 }}
+          gl={{ 
+            antialias: true,
+            toneMapping: THREE.ACESFilmicToneMapping,
+            outputColorSpace: THREE.SRGBColorSpace,
+            pixelRatio: Math.min(window.devicePixelRatio, 2)
+          }}
+        >
           <ambientLight intensity={0.8} />
           <directionalLight position={[5, 5, 5]} intensity={1} />
           <Environment preset="apartment" />
@@ -120,7 +146,6 @@ export default function ARViewer() {
         maxHeight: 'calc(100vh - 100px)',
         overflowY: 'auto',
       }}>
-
         <div style={{ marginBottom: '12px' }}>
           <div style={{ 
             fontSize: isMobile ? '10px' : '11px',
@@ -261,4 +286,6 @@ export default function ARViewer() {
   )
 }
 
-useGLTF.preload('/models/test_cabinet.glb')
+useGLTF.preload('/models/Matchum_cabinet(wood).glb')
+useGLTF.preload('/models/Matchum_cabinet(resin).glb')
+useGLTF.preload('/models/Matchum_cabinet(metal).glb')
