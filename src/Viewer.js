@@ -184,10 +184,7 @@ export default function Viewer() {
           <ambientLight intensity={1.0} />
           <directionalLight position={[5, 5, 5]} intensity={0.5} />
           <Model color={color} />
-          
-          {/* 커스텀 HDRI 배경 */}
           <Environment preset="studio" background />
-          
           <OrbitControls
             ref={controlsRef}
             enablePan={false}
