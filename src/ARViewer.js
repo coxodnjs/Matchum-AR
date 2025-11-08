@@ -13,13 +13,17 @@ function Cabinet({ scale, color, rotation }) {
   const { scene } = useGLTF(modelPath[color])
   
   scene.traverse((child) => {
-    if (child.isMesh && child.material) {
-      child.material.needsUpdate = true
-      if (child.material.map) {
-        child.material.map.anisotropy = 16
-      }
+  if (child.isMesh && child.material) {
+    child.material.transparent = false;
+    child.material.opacity = 1.0;
+    child.material.transmission = 0;
+    child.material.needsUpdate = true;
+    
+    if (child.material.map) {
+      child.material.map.anisotropy = 16;
     }
-  })
+  }
+})
   
   return (
     <primitive 
