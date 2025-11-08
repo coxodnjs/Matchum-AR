@@ -14,6 +14,12 @@ function Cabinet({ scale, color, rotation }) {
   
   scene.traverse((child) => {
   if (child.isMesh && child.material) {
+    if (color === 'resin') {
+      child.material.color.set('#2C5F7D');
+      child.material.metalness = 0.3;
+      child.material.roughness = 0.4;
+    }
+    
     child.material.transparent = false;
     child.material.opacity = 1.0;
     child.material.transmission = 0;
