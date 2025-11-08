@@ -4,7 +4,6 @@ import { useGLTF, OrbitControls, Environment } from '@react-three/drei'
 import { useState, useEffect } from 'react'
 
 function Cabinet({ scale, color, rotation }) {
-  // 재질별 GLB 파일 매핑
   const modelPath = {
     wood: '/models/Matchum_cabinet(wood).glb',
     resin: '/models/Matchum_cabinet(resin).glb',
@@ -13,7 +12,6 @@ function Cabinet({ scale, color, rotation }) {
   
   const { scene } = useGLTF(modelPath[color])
   
-  // 화질 개선
   scene.traverse((child) => {
     if (child.isMesh && child.material) {
       child.material.needsUpdate = true
@@ -93,13 +91,18 @@ export default function ARViewer() {
           gl={{ 
             antialias: true,
             toneMapping: THREE.ACESFilmicToneMapping,
+            toneMappingExposure: 1.0,
             outputColorSpace: THREE.SRGBColorSpace,
             pixelRatio: Math.min(window.devicePixelRatio, 2)
           }}
         >
-          <ambientLight intensity={0.8} />
-          <directionalLight position={[5, 5, 5]} intensity={1} />
-          <Environment preset="apartment" />
+          <ambientLight intensity={1.0} />
+          <directionalLight 
+            position={[5, 5, 5]} 
+            intensity={0.5}
+            color="#ffffff"
+          />
+          <Environment preset="studio" />
           <Cabinet scale={scale} color={color} rotation={rotation} />
           <OrbitControls 
             autoRotate={autoRotate}

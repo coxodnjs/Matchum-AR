@@ -1,10 +1,9 @@
 import * as THREE from 'three'
 import { Canvas } from '@react-three/fiber'
-import { useGLTF, OrbitControls, Environment } from '@react-three/drei'
+import { OrbitControls, useGLTF, Environment } from '@react-three/drei'
 import { useState, useEffect } from 'react'
 
 function Cabinet({ scale, color, rotation }) {
-  // 재질별 GLB 파일 매핑
   const modelPath = {
     wood: '/models/Matchum_cabinet(wood).glb',
     resin: '/models/Matchum_cabinet(resin).glb',
@@ -13,7 +12,6 @@ function Cabinet({ scale, color, rotation }) {
   
   const { scene } = useGLTF(modelPath[color])
   
-  // 화질 개선
   scene.traverse((child) => {
     if (child.isMesh && child.material) {
       child.material.needsUpdate = true
@@ -32,7 +30,7 @@ function Cabinet({ scale, color, rotation }) {
   )
 }
 
-export default function ARViewer() {
+export default function Viewer() {
   const [scale, setScale] = useState(1.5)
   const [rotation, setRotation] = useState(0)
   const [color, setColor] = useState('wood')
@@ -63,47 +61,41 @@ export default function ARViewer() {
     <div style={{ width: '100vw', height: '100vh', background: '#f5f5f5', position: 'relative' }}>
       <div style={{
         position: 'absolute',
-        top: '80px',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        background: 'rgba(0,0,0,0.9)',
-        color: 'white',
-        padding: isMobile ? '8px 15px' : '12px 20px',
-        borderRadius: '8px',
-        zIndex: 999,
-        textAlign: 'center',
-      }}>
-        <div style={{ fontSize: isMobile ? '11px' : '14px', fontWeight: 'bold' }}>
-          📱 AR 미리보기 모드
-        </div>
-        <div style={{ fontSize: isMobile ? '9px' : '11px', color: '#aaa', marginTop: '2px' }}>
-          실제 AR은 스마트폰에서만 작동합니다
-        </div>
-      </div>
-
-      <div style={{
-        position: 'absolute',
         top: 0,
         left: 0,
         right: 0,
         bottom: 0,
       }}>
         <Canvas 
-          camera={{ position: [2, 1.5, 3], fov: 50 }}
+          camera={{ position: [3, 2, 4], fov: 50 }}
           gl={{ 
             antialias: true,
             toneMapping: THREE.ACESFilmicToneMapping,
+            toneMappingExposure: 1.0,
             outputColorSpace: THREE.SRGBColorSpace,
             pixelRatio: Math.min(window.devicePixelRatio, 2)
           }}
         >
-          <ambientLight intensity={0.8} />
-          <directionalLight position={[5, 5, 5]} intensity={1} />
-          <Environment preset="apartment" />
+          <ambientLight intensity={1.0} />
+          <directionalLight 
+            position={[5, 5, 5]} 
+            intensity={0.5}
+            color="#ffffff"
+          />
+          <Environment preset="studio" />
           <Cabinet scale={scale} color={color} rotation={rotation} />
+          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.5, 0]}>
+            <planeGeometry args={[10, 10]} />
+            <meshStandardMaterial 
+              color="#ffffff" 
+              roughness={1.0}
+              metalness={0.0}
+            />
+          </mesh>
           <OrbitControls 
             autoRotate={autoRotate}
             autoRotateSpeed={2}
+            target={[0, 0.5, 0]}
           />
         </Canvas>
       </div>
