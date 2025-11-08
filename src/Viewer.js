@@ -1,25 +1,7 @@
 import { Canvas } from '@react-three/fiber'
 import { useGLTF, OrbitControls, Environment } from '@react-three/drei'
 import * as THREE from 'three'
-import { useState } from 'react'
-
-// 🎨 텍스처 한 번만 로드 (렉 방지)
-const textureLoader = new THREE.TextureLoader()
-const hanjiDiffuse = textureLoader.load('/textures/hanji_color.jpg')
-const hanjiNormal = textureLoader.load('/textures/hanji_normal.jpg')
-const hanjiRoughness = textureLoader.load('/textures/hanji_roughness.jpg')
-
-hanjiDiffuse.wrapS = hanjiDiffuse.wrapT = THREE.RepeatWrapping
-hanjiNormal.wrapS = hanjiNormal.wrapT = THREE.RepeatWrapping
-hanjiRoughness.wrapS = hanjiRoughness.wrapT = THREE.RepeatWrapping
-
-hanjiDiffuse.repeat.set(2, 2)
-hanjiNormal.repeat.set(2, 2)
-hanjiRoughness.repeat.set(2, 2)
-
-hanjiDiffuse.anisotropy = 16
-hanjiNormal.anisotropy = 16
-hanjiRoughness.anisotropy = 16
+import { useState, useMemo } from 'react'
 
 function Model({ color }) {
   const modelPath = {
@@ -30,34 +12,50 @@ function Model({ color }) {
   
   const { scene } = useGLTF(modelPath[color])
   
+  // 텍스처 로드 (에러 처리 추가)
+  const textures = useMemo(() => {
+    try {
+      const loader = new THREE.TextureLoader()
+      const diffuse = loader.load('/textures/hanji_color.jpg')
+      const normal = loader.load('/textures/hanji_normal.jpg')
+      const roughness = loader.load('/textures/hanji_roughness.jpg')
+      
+      [diffuse, normal, roughness].forEach(tex => {
+        tex.wrapS = tex.wrapT = THREE.RepeatWrapping
+        tex.repeat.set(2, 2)
+        tex.anisotropy = 16
+      })
+      
+      return { diffuse, normal, roughness }
+    } catch (error) {
+      console.error('텍스처 로드 실패:', error)
+      return null
+    }
+  }, [])
+  
   scene.traverse((child) => {
     if (child.isMesh && child.material) {
       
-      if (color === 'resin') {
-        // 🎨 은은한 반투명 한지 레진
+      if (color === 'resin' && textures) {
+        // 한지 레진 재질
         child.material = new THREE.MeshPhysicalMaterial({
-          // 베이스 색상 (밝은 베이지/크림)
           color: new THREE.Color('#E8DCC8'),
           
-          // 한지 텍스처
-          map: hanjiDiffuse,
-          normalMap: hanjiNormal,
-          normalScale: new THREE.Vector2(0.4, 0.4),
-          roughnessMap: hanjiRoughness,
+          map: textures.diffuse,
+          normalMap: textures.normal,
+          normalScale: new THREE.Vector2(0.3, 0.3),
+          roughnessMap: textures.roughness,
           roughness: 0.7,
           
-          // 은은한 반투명
           transparent: true,
           opacity: 0.95,
           transmission: 0.1,
           thickness: 0.3,
           ior: 1.45,
           
-          // 부드러운 광택
           clearcoat: 0.15,
           clearcoatRoughness: 0.4,
           
-          // 한지 느낌 (섬유 산란)
           sheen: 0.4,
           sheenRoughness: 0.7,
           sheenColor: new THREE.Color('#F5F0E5'),
@@ -213,15 +211,16 @@ function Viewer() {
         gl={{ 
           antialias: true,
           toneMapping: THREE.ACESFilmicToneMapping,
-          toneMappingExposure: 1.0,
+          toneMappingExposure: 0.8,
           outputColorSpace: THREE.SRGBColorSpace,
           pixelRatio: Math.min(window.devicePixelRatio, 2)
         }}
       >
-        <ambientLight intensity={1.0} />
-        <directionalLight position={[5, 5, 5]} intensity={0.5} />
+        {/* 조명 줄임! */}
+        <ambientLight intensity={0.6} />
+        <directionalLight position={[5, 5, 5]} intensity={0.3} />
         
-        <Environment preset="studio" />
+        <Environment preset="apartment" intensity={0.5} />
         
         <Model color={color} />
         
@@ -237,7 +236,7 @@ function Viewer() {
         
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.5, 0]} receiveShadow>
           <planeGeometry args={[10, 10]} />
-          <meshStandardMaterial color="#ffffff" roughness={1.0} />
+          <meshStandardMaterial color="#f5f5f5" roughness={1.0} />
         </mesh>
       </Canvas>
 
