@@ -1,7 +1,25 @@
 import { Canvas } from '@react-three/fiber'
 import { useGLTF, OrbitControls, Environment } from '@react-three/drei'
 import * as THREE from 'three'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
+
+// 🎨 텍스처 한 번만 로드 (렉 방지)
+const textureLoader = new THREE.TextureLoader()
+const hanjiDiffuse = textureLoader.load('/textures/hanji_color.jpg')
+const hanjiNormal = textureLoader.load('/textures/hanji_normal.jpg')
+const hanjiRoughness = textureLoader.load('/textures/hanji_roughness.jpg')
+
+hanjiDiffuse.wrapS = hanjiDiffuse.wrapT = THREE.RepeatWrapping
+hanjiNormal.wrapS = hanjiNormal.wrapT = THREE.RepeatWrapping
+hanjiRoughness.wrapS = hanjiRoughness.wrapT = THREE.RepeatWrapping
+
+hanjiDiffuse.repeat.set(2, 2)
+hanjiNormal.repeat.set(2, 2)
+hanjiRoughness.repeat.set(2, 2)
+
+hanjiDiffuse.anisotropy = 16
+hanjiNormal.anisotropy = 16
+hanjiRoughness.anisotropy = 16
 
 function Model({ color }) {
   const modelPath = {
@@ -12,94 +30,55 @@ function Model({ color }) {
   
   const { scene } = useGLTF(modelPath[color])
   
-  useEffect(() => {
-    // 한지 텍스처 로드
-    const textureLoader = new THREE.TextureLoader()
-    const hanjiDiffuse = textureLoader.load('/textures/hanji_color.jpg')
-    const hanjiNormal = textureLoader.load('/textures/hanji_normal.jpg')
-    const hanjiRoughness = textureLoader.load('/textures/hanji_roughness.jpg')
-    
-    // 텍스처 설정
-    hanjiDiffuse.wrapS = hanjiDiffuse.wrapT = THREE.RepeatWrapping
-    hanjiNormal.wrapS = hanjiNormal.wrapT = THREE.RepeatWrapping
-    hanjiRoughness.wrapS = hanjiRoughness.wrapT = THREE.RepeatWrapping
-    
-    // 텍스처 반복 (크기 조절)
-    hanjiDiffuse.repeat.set(3, 3)
-    hanjiNormal.repeat.set(3, 3)
-    hanjiRoughness.repeat.set(3, 3)
-    
-    // 고품질 필터링
-    hanjiDiffuse.anisotropy = 16
-    hanjiNormal.anisotropy = 16
-    hanjiRoughness.anisotropy = 16
-    
-    scene.traverse((child) => {
-      if (child.isMesh && child.material) {
-        
-        if (color === 'resin') {
-          // 🎨 고퀄리티 한지 레진 재질
-          child.material = new THREE.MeshPhysicalMaterial({
-            // 레진 베이스 색상 (청회색)
-            color: new THREE.Color('#4A6B7C'),
-            
-            // 한지 텍스처 적용
-            map: hanjiDiffuse,
-            normalMap: hanjiNormal,
-            normalScale: new THREE.Vector2(0.5, 0.5),
-            roughnessMap: hanjiRoughness,
-            roughness: 0.6,
-            
-            // 반투명 레진 효과
-            transparent: true,
-            opacity: 0.85,
-            transmission: 0.25,
-            thickness: 0.8,
-            ior: 1.5,
-            
-            // 표면 광택
-            clearcoat: 0.3,
-            clearcoatRoughness: 0.2,
-            
-            // 한지 섬유 산란광 효과
-            sheen: 0.5,
-            sheenRoughness: 0.5,
-            sheenColor: new THREE.Color('#F0EAD6'),
-            
-            metalness: 0.05,
-            reflectivity: 0.3,
-            side: THREE.DoubleSide,
-          })
+  scene.traverse((child) => {
+    if (child.isMesh && child.material) {
+      
+      if (color === 'resin') {
+        // 🎨 은은한 반투명 한지 레진
+        child.material = new THREE.MeshPhysicalMaterial({
+          // 베이스 색상 (밝은 베이지/크림)
+          color: new THREE.Color('#E8DCC8'),
           
-        } else if (color === 'wood') {
-          // 원목 재질
-          child.material.transparent = false
-          child.material.opacity = 1.0
-          child.material.transmission = 0
-          child.material.roughness = 0.7
-          child.material.metalness = 0
+          // 한지 텍스처
+          map: hanjiDiffuse,
+          normalMap: hanjiNormal,
+          normalScale: new THREE.Vector2(0.4, 0.4),
+          roughnessMap: hanjiRoughness,
+          roughness: 0.7,
           
-        } else if (color === 'metal') {
-          // 메탈 재질
-          child.material.transparent = false
-          child.material.opacity = 1.0
-          child.material.transmission = 0
-          child.material.roughness = 0.3
-          child.material.metalness = 0.8
-        }
+          // 은은한 반투명
+          transparent: true,
+          opacity: 0.95,
+          transmission: 0.1,
+          thickness: 0.3,
+          ior: 1.45,
+          
+          // 부드러운 광택
+          clearcoat: 0.15,
+          clearcoatRoughness: 0.4,
+          
+          // 한지 느낌 (섬유 산란)
+          sheen: 0.4,
+          sheenRoughness: 0.7,
+          sheenColor: new THREE.Color('#F5F0E5'),
+          
+          metalness: 0,
+          side: THREE.DoubleSide,
+        })
         
+      } else {
+        // 원목, 메탈
+        child.material.transparent = false
+        child.material.opacity = 1.0
+        child.material.transmission = 0
         child.material.needsUpdate = true
         
-        // 텍스처 품질 향상
         if (child.material.map) {
           child.material.map.anisotropy = 16
         }
-        if (child.material.normalMap) {
-          child.material.normalMap.anisotropy = 16
-        }
       }
-    })
-  }, [scene, color])
+    }
+  })
   
   return <primitive object={scene} scale={1.5} />
 }
@@ -108,7 +87,6 @@ function Viewer() {
   const [color, setColor] = useState('wood')
   const [autoRotate, setAutoRotate] = useState(false)
   const [rotation, setRotation] = useState(0)
-  const [isPanelOpen, setIsPanelOpen] = useState(true)
 
   const colors = {
     wood: { name: '원목', color: '#C19A6B' },
@@ -121,105 +99,61 @@ function Viewer() {
   }
 
   return (
-    <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden' }}>
-      {/* 뒤로가기 버튼 */}
-      <button
-        onClick={() => window.history.back()}
-        style={{
-          position: 'absolute',
-          top: '20px',
-          left: '20px',
-          zIndex: 100,
-          background: '#333',
-          color: 'white',
-          border: 'none',
-          borderRadius: '8px',
-          padding: '12px',
-          cursor: 'pointer',
-          fontSize: '20px',
-          width: '48px',
-          height: '48px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}
-      >
-        ◀
-      </button>
-
+    <div style={{ width: '100vw', height: '100vh', position: 'relative' }}>
       {/* 좌측 컨트롤 패널 */}
       <div style={{
         position: 'absolute',
-        top: '50%',
-        left: isPanelOpen ? '20px' : '-280px',
-        transform: 'translateY(-50%)',
+        top: '20px',
+        left: '20px',
         zIndex: 10,
         background: 'white',
         borderRadius: '12px',
         padding: '20px',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-        width: '240px',
-        transition: 'left 0.3s ease'
+        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+        width: '200px'
       }}>
-        <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '16px' }}>🎨</span>
-          <strong>색상</strong>
-        </div>
-        
+        <div style={{ marginBottom: '15px', fontWeight: 'bold' }}>색상</div>
         {Object.entries(colors).map(([key, { name, color: bgColor }]) => (
           <button
             key={key}
             onClick={() => setColor(key)}
             style={{
               width: '100%',
-              padding: '12px',
-              marginBottom: '10px',
-              border: color === key ? '2px solid #333' : '2px solid #ddd',
-              borderRadius: '8px',
+              padding: '10px',
+              marginBottom: '8px',
+              border: color === key ? '2px solid #333' : '1px solid #ddd',
+              borderRadius: '6px',
               background: 'white',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              gap: '10px',
-              transition: 'all 0.2s'
+              gap: '8px'
             }}
           >
             <div style={{
-              width: '24px',
-              height: '24px',
-              borderRadius: '4px',
-              background: bgColor,
-              border: '1px solid #ddd'
+              width: '20px',
+              height: '20px',
+              borderRadius: '3px',
+              background: bgColor
             }} />
-            <span style={{ fontWeight: color === key ? 'bold' : 'normal' }}>
-              {name}
-            </span>
+            <span>{name}</span>
           </button>
         ))}
 
-        <div style={{ 
-          marginTop: '30px', 
-          paddingTop: '20px', 
-          borderTop: '1px solid #eee',
-          marginBottom: '20px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px'
-        }}>
-          <span style={{ fontSize: '16px' }}>🔄</span>
-          <strong>회전</strong>
+        <div style={{ marginTop: '20px', marginBottom: '10px', fontWeight: 'bold' }}>
+          회전
         </div>
 
-        <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
           <button
             onClick={() => rotate(-45)}
             style={{
               flex: 1,
-              padding: '10px',
+              padding: '8px',
               background: '#333',
               color: 'white',
               border: 'none',
-              borderRadius: '8px',
+              borderRadius: '6px',
               cursor: 'pointer'
             }}
           >
@@ -229,11 +163,11 @@ function Viewer() {
             onClick={() => rotate(45)}
             style={{
               flex: 1,
-              padding: '10px',
+              padding: '8px',
               background: '#333',
               color: 'white',
               border: 'none',
-              borderRadius: '8px',
+              borderRadius: '6px',
               cursor: 'pointer'
             }}
           >
@@ -244,57 +178,34 @@ function Viewer() {
         <label style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '8px',
-          cursor: 'pointer',
-          userSelect: 'none'
+          gap: '6px',
+          fontSize: '14px',
+          cursor: 'pointer'
         }}>
           <input
             type="checkbox"
             checked={autoRotate}
             onChange={(e) => setAutoRotate(e.target.checked)}
-            style={{ cursor: 'pointer' }}
           />
-          <span>자동 회전</span>
+          자동 회전
         </label>
 
         <button
           onClick={() => setRotation(0)}
           style={{
             width: '100%',
-            padding: '12px',
-            marginTop: '15px',
+            padding: '10px',
+            marginTop: '10px',
             background: '#666',
             color: 'white',
             border: 'none',
-            borderRadius: '8px',
+            borderRadius: '6px',
             cursor: 'pointer'
           }}
         >
           ⟲ 리셋
         </button>
       </div>
-
-      {/* 패널 토글 버튼 */}
-      <button
-        onClick={() => setIsPanelOpen(!isPanelOpen)}
-        style={{
-          position: 'absolute',
-          left: isPanelOpen ? '280px' : '20px',
-          top: '50%',
-          transform: 'translateY(-50%)',
-          zIndex: 11,
-          background: '#333',
-          color: 'white',
-          border: 'none',
-          borderRadius: '0 8px 8px 0',
-          padding: '20px 8px',
-          cursor: 'pointer',
-          fontSize: '16px',
-          transition: 'left 0.3s ease'
-        }}
-      >
-        {isPanelOpen ? '◀' : '▶'}
-      </button>
 
       {/* 3D Canvas */}
       <Canvas 
@@ -307,35 +218,12 @@ function Viewer() {
           pixelRatio: Math.min(window.devicePixelRatio, 2)
         }}
       >
-        {/* 주변광 */}
-        <ambientLight intensity={1.2} />
-        
-        {/* 메인 라이트 */}
-        <directionalLight 
-          position={[5, 5, 5]} 
-          intensity={0.7}
-          castShadow
-        />
-        
-        {/* 백라이트 (한지 투과 효과) */}
-        <directionalLight 
-          position={[-3, 2, -3]} 
-          intensity={0.5}
-          color="#fff8e7"
-        />
-        
-        {/* 림라이트 (윤곽선 강조) */}
-        <spotLight
-          position={[3, 3, 0]}
-          intensity={0.4}
-          angle={0.5}
-          penumbra={1}
-          color="#ffffff"
-        />
+        <ambientLight intensity={1.0} />
+        <directionalLight position={[5, 5, 5]} intensity={0.5} />
         
         <Environment preset="studio" />
         
-        <Model color={color} rotation={rotation} />
+        <Model color={color} />
         
         <OrbitControls 
           enablePan={true}
@@ -347,14 +235,9 @@ function Viewer() {
           maxDistance={10}
         />
         
-        {/* 바닥 */}
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.5, 0]} receiveShadow>
           <planeGeometry args={[10, 10]} />
-          <meshStandardMaterial 
-            color="#ffffff" 
-            roughness={1.0}
-            metalness={0}
-          />
+          <meshStandardMaterial color="#ffffff" roughness={1.0} />
         </mesh>
       </Canvas>
 
@@ -364,16 +247,15 @@ function Viewer() {
         bottom: '20px',
         left: '50%',
         transform: 'translateX(-50%)',
-        background: 'rgba(255,255,255,0.95)',
-        padding: '15px 30px',
-        borderRadius: '12px',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-        textAlign: 'center'
+        background: 'rgba(255,255,255,0.9)',
+        padding: '12px 24px',
+        borderRadius: '8px',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
       }}>
-        <div style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '5px' }}>
+        <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>
           맞춤장 (Matchum Cabinet)
         </div>
-        <div style={{ fontSize: '14px', color: '#666' }}>
+        <div style={{ fontSize: '13px', color: '#666' }}>
           한옥 스타일 · {colors[color].name}
         </div>
       </div>
