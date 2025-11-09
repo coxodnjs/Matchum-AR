@@ -84,7 +84,9 @@ export default function Viewer() {
           
           <Environment preset="city" intensity={0.5} />
           
-          <Cabinet scale={scale} color={color} rotation={rotation} />
+          <group position={[0, -1.0, 0]}>
+  <Cabinet scale={scale} color={color} rotation={rotation} />
+</group>
           
           <OrbitControls 
             autoRotate={autoRotate}
@@ -97,7 +99,7 @@ export default function Viewer() {
           />
           
           {/* 바닥 - 어둡게 */}
-          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.5, 0]} receiveShadow>
+          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.0, 0]} receiveShadow>
             <planeGeometry args={[10, 10]} />
             <meshStandardMaterial color="#2a2a2a" roughness={0.9} />
           </mesh>
