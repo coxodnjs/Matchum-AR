@@ -99,7 +99,7 @@ export default function Viewer() {
           {/* 바닥 - 어둡게 */}
           <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.5, 0]} receiveShadow>
             <planeGeometry args={[10, 10]} />
-            <meshStandardMaterial color="#404040ff" roughness={0.9} />
+            <meshStandardMaterial color="#2a2a2a" roughness={0.9} />
           </mesh>
         </Canvas>
       </div>
