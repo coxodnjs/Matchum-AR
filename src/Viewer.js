@@ -12,7 +12,6 @@ function Model({ color }) {
   
   const { scene } = useGLTF(modelPath[color])
   
-  // 화질만 향상, 재질 변경 X
   scene.traverse((child) => {
     if (child.isMesh && child.material) {
       child.material.needsUpdate = true
@@ -37,10 +36,68 @@ function Viewer() {
 
   return (
     <div style={{ width: '100vw', height: '100vh', position: 'relative' }}>
-      {/* 좌측 컨트롤 패널 */}
+      {/* 뒤로가기 버튼 */}
+      <button
+        onClick={() => window.history.back()}
+        style={{
+          position: 'absolute',
+          top: '20px',
+          left: '20px',
+          zIndex: 100,
+          background: '#333',
+          color: 'white',
+          border: 'none',
+          borderRadius: '8px',
+          padding: '12px',
+          cursor: 'pointer',
+          fontSize: '20px',
+          width: '48px',
+          height: '48px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}
+      >
+        ◀
+      </button>
+
+      {/* 우측 상단 3D/AR 버튼 */}
       <div style={{
         position: 'absolute',
         top: '20px',
+        right: '20px',
+        zIndex: 100,
+        display: 'flex',
+        gap: '10px'
+      }}>
+        <button style={{
+          background: '#000',
+          color: 'white',
+          border: 'none',
+          borderRadius: '8px',
+          padding: '12px 24px',
+          cursor: 'pointer',
+          fontWeight: 'bold'
+        }}>
+          3D 뷰어
+        </button>
+        <button style={{
+          background: '#666',
+          color: 'white',
+          border: 'none',
+          borderRadius: '8px',
+          padding: '12px 24px',
+          cursor: 'pointer',
+          fontWeight: 'bold'
+        }}>
+          AR 모드
+        </button>
+      </div>
+
+      {/* 좌측 컨트롤 패널 */}
+      <div style={{
+        position: 'absolute',
+        top: '100px',
         left: '20px',
         zIndex: 10,
         background: 'white',
@@ -49,7 +106,11 @@ function Viewer() {
         boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
         width: '200px'
       }}>
-        <div style={{ marginBottom: '15px', fontWeight: 'bold' }}>색상</div>
+        <div style={{ marginBottom: '15px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{ fontSize: '16px' }}>🎨</span>
+          색상
+        </div>
+        
         {Object.entries(colors).map(([key, { name, color: bgColor }]) => (
           <button
             key={key}
@@ -71,13 +132,15 @@ function Viewer() {
               width: '20px',
               height: '20px',
               borderRadius: '3px',
-              background: bgColor
+              background: bgColor,
+              border: '1px solid #ddd'
             }} />
             <span>{name}</span>
           </button>
         ))}
 
-        <div style={{ marginTop: '20px', marginBottom: '10px', fontWeight: 'bold' }}>
+        <div style={{ marginTop: '20px', marginBottom: '10px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{ fontSize: '16px' }}>🔄</span>
           회전
         </div>
 
@@ -90,7 +153,8 @@ function Viewer() {
               color: 'white',
               border: 'none',
               borderRadius: '6px',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              fontSize: '14px'
             }}
           >
             ← 45°
@@ -103,7 +167,8 @@ function Viewer() {
               color: 'white',
               border: 'none',
               borderRadius: '6px',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              fontSize: '14px'
             }}
           >
             45° →
@@ -115,7 +180,8 @@ function Viewer() {
           alignItems: 'center',
           gap: '6px',
           fontSize: '14px',
-          cursor: 'pointer'
+          cursor: 'pointer',
+          marginBottom: '10px'
         }}>
           <input
             type="checkbox"
@@ -124,6 +190,20 @@ function Viewer() {
           />
           자동 회전
         </label>
+
+        <button
+          style={{
+            width: '100%',
+            padding: '10px',
+            background: '#666',
+            color: 'white',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: 'pointer'
+          }}
+        >
+          ⟲ 리셋
+        </button>
       </div>
 
       {/* 3D Canvas */}
@@ -137,7 +217,6 @@ function Viewer() {
           pixelRatio: Math.min(window.devicePixelRatio, 2)
         }}
       >
-        {/* 조명 조정 */}
         <ambientLight intensity={0.7} />
         <directionalLight position={[5, 5, 5]} intensity={0.4} />
         <directionalLight position={[-3, 2, -3]} intensity={0.2} color="#fff8e7" />
@@ -156,7 +235,6 @@ function Viewer() {
           maxDistance={10}
         />
         
-        {/* 바닥 조정 */}
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.5, 0]} receiveShadow>
           <planeGeometry args={[10, 10]} />
           <meshStandardMaterial color="#e8e8e8" roughness={0.9} />
