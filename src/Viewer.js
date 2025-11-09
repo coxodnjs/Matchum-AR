@@ -1,9 +1,9 @@
+import * as THREE from 'three'
 import { Canvas } from '@react-three/fiber'
 import { useGLTF, OrbitControls, Environment } from '@react-three/drei'
-import * as THREE from 'three'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
-function Model({ color }) {
+function Cabinet({ scale, color, rotation }) {
   const modelPath = {
     wood: '/models/Matchum_cabinet(wood).glb',
     resin: '/models/Matchum_cabinet(resin).glb',
@@ -21,12 +21,26 @@ function Model({ color }) {
     }
   })
   
-  return <primitive object={scene} scale={1.5} />
+  return (
+    <primitive 
+      object={scene} 
+      scale={scale}
+      rotation={[0, rotation * (Math.PI / 180), 0]}
+    />
+  )
 }
 
-function Viewer() {
+export default function Viewer() {
+  const [scale, setScale] = useState(1.5)
+  const [rotation, setRotation] = useState(0)
   const [color, setColor] = useState('wood')
   const [autoRotate, setAutoRotate] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+  const [isPanelOpen, setIsPanelOpen] = useState(true)
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth <= 768)
+  }, [])
 
   const colors = {
     wood: { name: '원목', color: '#C19A6B' },
@@ -34,228 +48,297 @@ function Viewer() {
     metal: { name: '메탈', color: '#A8A8A8' }
   }
 
+  const handleReset = () => {
+    setScale(1.5)
+    setRotation(0)
+    setAutoRotate(false)
+  }
+
+  const buttonSize = isMobile ? '45px' : '50px'
+  const buttonGap = isMobile ? '8px' : '10px'
+
   return (
-    <div style={{ width: '100vw', height: '100vh', position: 'relative' }}>
+    <div style={{ width: '100vw', height: '100vh', background: '#f5f5f5', position: 'relative' }}>
       {/* 뒤로가기 버튼 */}
       <button
         onClick={() => window.history.back()}
         style={{
           position: 'absolute',
-          top: '20px',
-          left: '20px',
-          zIndex: 100,
-          background: '#333',
+          top: buttonGap,
+          left: buttonGap,
+          width: buttonSize,
+          height: buttonSize,
+          background: 'rgba(0,0,0,0.8)',
           color: 'white',
           border: 'none',
           borderRadius: '8px',
-          padding: '12px',
           cursor: 'pointer',
-          fontSize: '20px',
-          width: '48px',
-          height: '48px',
+          fontSize: isMobile ? '18px' : '20px',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center'
+          justifyContent: 'center',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
+          zIndex: 1002,
         }}
       >
         ◀
       </button>
 
-      {/* 우측 상단 3D/AR 버튼 */}
+      {/* 3D/AR 버튼 */}
       <div style={{
         position: 'absolute',
-        top: '20px',
-        right: '20px',
-        zIndex: 100,
+        top: buttonGap,
+        right: buttonGap,
         display: 'flex',
-        gap: '10px'
+        gap: buttonGap,
+        zIndex: 1002,
       }}>
         <button style={{
-          background: '#000',
+          background: 'rgba(0,0,0,0.9)',
           color: 'white',
           border: 'none',
           borderRadius: '8px',
-          padding: '12px 24px',
+          padding: isMobile ? '10px 18px' : '12px 24px',
           cursor: 'pointer',
-          fontWeight: 'bold'
+          fontWeight: 'bold',
+          fontSize: isMobile ? '11px' : '13px',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
         }}>
           3D 뷰어
         </button>
         <button style={{
-          background: '#666',
+          background: 'rgba(102,102,102,0.9)',
           color: 'white',
           border: 'none',
           borderRadius: '8px',
-          padding: '12px 24px',
+          padding: isMobile ? '10px 18px' : '12px 24px',
           cursor: 'pointer',
-          fontWeight: 'bold'
+          fontWeight: 'bold',
+          fontSize: isMobile ? '11px' : '13px',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
         }}>
           AR 모드
         </button>
       </div>
 
+      {/* 3D Canvas */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+      }}>
+        <Canvas 
+          camera={{ position: [3, 2, 4], fov: 50 }}
+          gl={{ 
+            antialias: true,
+            toneMapping: THREE.ACESFilmicToneMapping,
+            toneMappingExposure: 0.75,
+            outputColorSpace: THREE.SRGBColorSpace,
+            pixelRatio: Math.min(window.devicePixelRatio, 2)
+          }}
+        >
+          <ambientLight intensity={0.7} />
+          <directionalLight position={[5, 5, 5]} intensity={0.4} />
+          <directionalLight position={[-3, 2, -3]} intensity={0.2} color="#fff8e7" />
+          
+          <Environment preset="city" intensity={0.4} />
+          
+          <Cabinet scale={scale} color={color} rotation={rotation} />
+          
+          <OrbitControls 
+            autoRotate={autoRotate}
+            autoRotateSpeed={2}
+            enablePan={true}
+            enableZoom={true}
+            enableRotate={true}
+            minDistance={2}
+            maxDistance={10}
+          />
+          
+          {/* 바닥 */}
+          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.5, 0]} receiveShadow>
+            <planeGeometry args={[10, 10]} />
+            <meshStandardMaterial color="#e8e8e8" roughness={0.9} />
+          </mesh>
+        </Canvas>
+      </div>
+
+      {/* 패널 토글 버튼 */}
+      <button
+        onClick={() => setIsPanelOpen(!isPanelOpen)}
+        style={{
+          position: 'absolute',
+          top: `calc(${buttonSize} + ${buttonGap} * 2)`,
+          left: buttonGap,
+          width: buttonSize,
+          height: buttonSize,
+          background: 'rgba(0,0,0,0.8)',
+          color: 'white',
+          border: 'none',
+          borderRadius: '8px',
+          cursor: 'pointer',
+          fontSize: isMobile ? '18px' : '20px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
+          zIndex: 1001,
+        }}
+      >
+        {isPanelOpen ? '◀' : '▶'}
+      </button>
+
       {/* 좌측 컨트롤 패널 */}
       <div style={{
         position: 'absolute',
-        top: '100px',
-        left: '20px',
-        zIndex: 10,
-        background: 'white',
-        borderRadius: '12px',
-        padding: '20px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-        width: '200px'
+        top: `calc(${buttonSize} * 2 + ${buttonGap} * 3 + 5px)`,
+        left: isPanelOpen ? buttonGap : `-${isMobile ? '180px' : '200px'}`,
+        width: isMobile ? '160px' : '180px',
+        background: 'rgba(255,255,255,0.98)',
+        padding: isMobile ? '10px' : '12px',
+        borderRadius: '8px',
+        boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+        zIndex: 1000,
+        transition: 'left 0.3s',
+        maxHeight: 'calc(100vh - 100px)',
+        overflowY: 'auto',
       }}>
-        <div style={{ marginBottom: '15px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{ fontSize: '16px' }}>🎨</span>
-          색상
-        </div>
-        
-        {Object.entries(colors).map(([key, { name, color: bgColor }]) => (
-          <button
-            key={key}
-            onClick={() => setColor(key)}
-            style={{
-              width: '100%',
-              padding: '10px',
-              marginBottom: '8px',
-              border: color === key ? '2px solid #333' : '1px solid #ddd',
-              borderRadius: '6px',
-              background: 'white',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}
-          >
-            <div style={{
-              width: '20px',
-              height: '20px',
-              borderRadius: '3px',
-              background: bgColor,
-              border: '1px solid #ddd'
-            }} />
-            <span>{name}</span>
-          </button>
-        ))}
-
-        <div style={{ marginTop: '20px', marginBottom: '10px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{ fontSize: '16px' }}>🔄</span>
-          회전
-        </div>
-
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
-          <button
-            style={{
-              flex: 1,
-              padding: '8px',
-              background: '#333',
-              color: 'white',
-              border: 'none',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              fontSize: '14px'
-            }}
-          >
-            ← 45°
-          </button>
-          <button
-            style={{
-              flex: 1,
-              padding: '8px',
-              background: '#333',
-              color: 'white',
-              border: 'none',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              fontSize: '14px'
-            }}
-          >
-            45° →
-          </button>
+        <div style={{ marginBottom: '12px' }}>
+          <div style={{ 
+            fontSize: isMobile ? '10px' : '11px',
+            fontWeight: 'bold', 
+            marginBottom: '6px',
+            color: '#333'
+          }}>
+            🎨 색상
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            {Object.entries(colors).map(([key, { name, color: c }]) => (
+              <button
+                key={key}
+                onClick={() => setColor(key)}
+                style={{
+                  padding: '6px 8px',
+                  border: color === key ? '2px solid #1a1a1a' : '1px solid #ddd',
+                  borderRadius: '4px',
+                  background: 'white',
+                  cursor: 'pointer',
+                  fontSize: isMobile ? '9px' : '10px',
+                  fontWeight: color === key ? 'bold' : 'normal',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                }}
+              >
+                <div style={{
+                  width: '20px',
+                  height: '20px',
+                  background: c,
+                  borderRadius: '3px',
+                  flexShrink: 0,
+                }}></div>
+                {name}
+              </button>
+            ))}
+          </div>
         </div>
 
-        <label style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px',
-          fontSize: '14px',
-          cursor: 'pointer',
-          marginBottom: '10px'
-        }}>
-          <input
-            type="checkbox"
-            checked={autoRotate}
-            onChange={(e) => setAutoRotate(e.target.checked)}
-          />
-          자동 회전
-        </label>
+        <div style={{ marginBottom: '12px' }}>
+          <div style={{ 
+            fontSize: isMobile ? '10px' : '11px',
+            fontWeight: 'bold', 
+            marginBottom: '6px',
+            color: '#333'
+          }}>
+            🔄 회전
+          </div>
+          <div style={{ display: 'flex', gap: '4px', marginBottom: '6px' }}>
+            <button
+              onClick={() => setRotation(r => r - 45)}
+              style={{
+                flex: 1,
+                padding: '8px',
+                background: '#1a1a1a',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: isMobile ? '10px' : '11px',
+                fontWeight: 'bold',
+              }}
+            >
+              ← 45°
+            </button>
+            <button
+              onClick={() => setRotation(r => r + 45)}
+              style={{
+                flex: 1,
+                padding: '8px',
+                background: '#1a1a1a',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: isMobile ? '10px' : '11px',
+                fontWeight: 'bold',
+              }}
+            >
+              45° →
+            </button>
+          </div>
+          <label style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            fontSize: isMobile ? '9px' : '10px',
+            cursor: 'pointer',
+            color: '#666'
+          }}>
+            <input
+              type="checkbox"
+              checked={autoRotate}
+              onChange={(e) => setAutoRotate(e.target.checked)}
+              style={{ marginRight: '5px' }}
+            />
+            자동 회전
+          </label>
+        </div>
 
         <button
+          onClick={handleReset}
           style={{
             width: '100%',
             padding: '10px',
             background: '#666',
             color: 'white',
             border: 'none',
-            borderRadius: '6px',
-            cursor: 'pointer'
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontSize: isMobile ? '10px' : '11px',
+            fontWeight: 'bold',
           }}
         >
-          ⟲ 리셋
+          ↺ 리셋
         </button>
       </div>
-
-      {/* 3D Canvas */}
-      <Canvas 
-        camera={{ position: [3, 2, 4], fov: 50 }}
-        gl={{ 
-          antialias: true,
-          toneMapping: THREE.ACESFilmicToneMapping,
-          toneMappingExposure: 0.75,
-          outputColorSpace: THREE.SRGBColorSpace,
-          pixelRatio: Math.min(window.devicePixelRatio, 2)
-        }}
-      >
-        <ambientLight intensity={0.7} />
-        <directionalLight position={[5, 5, 5]} intensity={0.4} />
-        <directionalLight position={[-3, 2, -3]} intensity={0.2} color="#fff8e7" />
-        
-        <Environment preset="city" intensity={0.4} />
-        
-        <Model color={color} />
-        
-        <OrbitControls 
-          enablePan={true}
-          enableZoom={true}
-          enableRotate={true}
-          autoRotate={autoRotate}
-          autoRotateSpeed={2}
-          minDistance={2}
-          maxDistance={10}
-        />
-        
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.5, 0]} receiveShadow>
-          <planeGeometry args={[10, 10]} />
-          <meshStandardMaterial color="#e8e8e8" roughness={0.9} />
-        </mesh>
-      </Canvas>
 
       {/* 하단 제품 정보 */}
       <div style={{
         position: 'absolute',
-        bottom: '20px',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        background: 'rgba(255,255,255,0.9)',
-        padding: '12px 24px',
+        bottom: '15px',
+        left: buttonGap,
+        right: buttonGap,
+        background: 'rgba(255,255,255,0.95)',
+        padding: isMobile ? '10px 12px' : '12px 15px',
         borderRadius: '8px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+        boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+        zIndex: 1000,
       }}>
-        <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>
+        <div style={{ fontSize: isMobile ? '12px' : '14px', fontWeight: 'bold', marginBottom: '3px' }}>
           맞춤장 (Matchum Cabinet)
         </div>
-        <div style={{ fontSize: '13px', color: '#666' }}>
+        <div style={{ fontSize: isMobile ? '10px' : '11px', color: '#666' }}>
           한옥 스타일 · {colors[color].name}
         </div>
       </div>
@@ -263,4 +346,6 @@ function Viewer() {
   )
 }
 
-export default Viewer
+useGLTF.preload('/models/Matchum_cabinet(wood).glb')
+useGLTF.preload('/models/Matchum_cabinet(resin).glb')
+useGLTF.preload('/models/Matchum_cabinet(metal).glb')
