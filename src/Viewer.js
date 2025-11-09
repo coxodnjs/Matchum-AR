@@ -59,42 +59,6 @@ export default function Viewer() {
 
   return (
     <div style={{ width: '100vw', height: '100vh', background: '#f5f5f5', position: 'relative' }}>
-      {/* 3D/AR 버튼 */}
-      <div style={{
-        position: 'absolute',
-        top: '20px',
-        right: '20px',
-        display: 'flex',
-        gap: '10px',
-        zIndex: 1002,
-      }}>
-        <button style={{
-          background: '#000',
-          color: 'white',
-          border: 'none',
-          borderRadius: '8px',
-          padding: '12px 24px',
-          cursor: 'pointer',
-          fontWeight: 'bold',
-          fontSize: '14px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-        }}>
-          3D 뷰어
-        </button>
-        <button style={{
-          background: '#666',
-          color: 'white',
-          border: 'none',
-          borderRadius: '8px',
-          padding: '12px 24px',
-          cursor: 'pointer',
-          fontWeight: 'bold',
-          fontSize: '14px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-        }}>
-          AR 모드
-        </button>
-      </div>
 
       {/* 3D Canvas */}
       <div style={{
@@ -135,7 +99,7 @@ export default function Viewer() {
           {/* 바닥 - 어둡게 */}
           <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.5, 0]} receiveShadow>
             <planeGeometry args={[10, 10]} />
-            <meshStandardMaterial color="#c8c8c8" roughness={0.9} />
+            <meshStandardMaterial color="#404040ff" roughness={0.9} />
           </mesh>
         </Canvas>
       </div>
@@ -323,4 +287,4 @@ export default function Viewer() {
 
 useGLTF.preload('/models/Matchum_cabinet(wood).glb')
 useGLTF.preload('/models/Matchum_cabinet(resin).glb')
-useGLTF.preload('/models/Matchum_cabinet(metal).glb')
+useGLTF.preload('/models/Matchum_cabinet(metal).glb') 
