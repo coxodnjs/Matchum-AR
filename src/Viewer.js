@@ -59,63 +59,38 @@ export default function Viewer() {
 
   return (
     <div style={{ width: '100vw', height: '100vh', background: '#f5f5f5', position: 'relative' }}>
-      {/* 뒤로가기 버튼 */}
-      <button
-        onClick={() => window.history.back()}
-        style={{
-          position: 'absolute',
-          top: buttonGap,
-          left: buttonGap,
-          width: buttonSize,
-          height: buttonSize,
-          background: 'rgba(0,0,0,0.8)',
-          color: 'white',
-          border: 'none',
-          borderRadius: '8px',
-          cursor: 'pointer',
-          fontSize: isMobile ? '18px' : '20px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
-          zIndex: 1002,
-        }}
-      >
-        ◀
-      </button>
-
       {/* 3D/AR 버튼 */}
       <div style={{
         position: 'absolute',
-        top: buttonGap,
-        right: buttonGap,
+        top: '20px',
+        right: '20px',
         display: 'flex',
-        gap: buttonGap,
+        gap: '10px',
         zIndex: 1002,
       }}>
         <button style={{
-          background: 'rgba(0,0,0,0.9)',
+          background: '#000',
           color: 'white',
           border: 'none',
           borderRadius: '8px',
-          padding: isMobile ? '10px 18px' : '12px 24px',
+          padding: '12px 24px',
           cursor: 'pointer',
           fontWeight: 'bold',
-          fontSize: isMobile ? '11px' : '13px',
-          boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
+          fontSize: '14px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
         }}>
           3D 뷰어
         </button>
         <button style={{
-          background: 'rgba(102,102,102,0.9)',
+          background: '#666',
           color: 'white',
           border: 'none',
           borderRadius: '8px',
-          padding: isMobile ? '10px 18px' : '12px 24px',
+          padding: '12px 24px',
           cursor: 'pointer',
           fontWeight: 'bold',
-          fontSize: isMobile ? '11px' : '13px',
-          boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
+          fontSize: '14px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
         }}>
           AR 모드
         </button>
@@ -134,16 +109,16 @@ export default function Viewer() {
           gl={{ 
             antialias: true,
             toneMapping: THREE.ACESFilmicToneMapping,
-            toneMappingExposure: 0.75,
+            toneMappingExposure: 0.9,
             outputColorSpace: THREE.SRGBColorSpace,
             pixelRatio: Math.min(window.devicePixelRatio, 2)
           }}
         >
-          <ambientLight intensity={0.7} />
-          <directionalLight position={[5, 5, 5]} intensity={0.4} />
-          <directionalLight position={[-3, 2, -3]} intensity={0.2} color="#fff8e7" />
+          <ambientLight intensity={0.9} />
+          <directionalLight position={[5, 5, 5]} intensity={0.6} />
+          <directionalLight position={[-3, 2, -3]} intensity={0.3} color="#fff8e7" />
           
-          <Environment preset="city" intensity={0.4} />
+          <Environment preset="city" intensity={0.5} />
           
           <Cabinet scale={scale} color={color} rotation={rotation} />
           
@@ -157,10 +132,10 @@ export default function Viewer() {
             maxDistance={10}
           />
           
-          {/* 바닥 */}
+          {/* 바닥 - 어둡게 */}
           <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.5, 0]} receiveShadow>
             <planeGeometry args={[10, 10]} />
-            <meshStandardMaterial color="#e8e8e8" roughness={0.9} />
+            <meshStandardMaterial color="#c8c8c8" roughness={0.9} />
           </mesh>
         </Canvas>
       </div>
@@ -170,7 +145,7 @@ export default function Viewer() {
         onClick={() => setIsPanelOpen(!isPanelOpen)}
         style={{
           position: 'absolute',
-          top: `calc(${buttonSize} + ${buttonGap} * 2)`,
+          top: buttonGap,
           left: buttonGap,
           width: buttonSize,
           height: buttonSize,
@@ -193,7 +168,7 @@ export default function Viewer() {
       {/* 좌측 컨트롤 패널 */}
       <div style={{
         position: 'absolute',
-        top: `calc(${buttonSize} * 2 + ${buttonGap} * 3 + 5px)`,
+        top: isMobile ? `calc(${buttonSize} + ${buttonGap} * 2 + 5px)` : `calc(${buttonSize} + ${buttonGap} * 2)`,
         left: isPanelOpen ? buttonGap : `-${isMobile ? '180px' : '200px'}`,
         width: isMobile ? '160px' : '180px',
         background: 'rgba(255,255,255,0.98)',
