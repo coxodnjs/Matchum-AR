@@ -1,56 +1,21 @@
-import * as THREE from 'three'
-import { Canvas } from '@react-three/fiber'
-import { useGLTF, OrbitControls, Environment } from '@react-three/drei'
-import { useState, useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import '@google/model-viewer'
 
-function Cabinet({ scale, color, rotation }) {
+export default function ARViewer() {
+  const [color, setColor] = useState('wood')
+  const [isPanelOpen, setIsPanelOpen] = useState(true)
+  const [isMobile, setIsMobile] = useState(false)
+  const modelViewerRef = useRef(null)
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth <= 768)
+  }, [])
+
   const modelPath = {
     wood: '/models/Matchum_cabinet(wood).glb',
     resin: '/models/Matchum_cabinet(resin).glb',
     metal: '/models/Matchum_cabinet(metal).glb'
   }
-  
-  const { scene } = useGLTF(modelPath[color])
-  
-  scene.traverse((child) => {
-  if (child.isMesh && child.material) {
-    if (color === 'resin') {
-      child.material.color.set('#2C5F7D');
-      child.material.metalness = 0.3;
-      child.material.roughness = 0.4;
-    }
-    
-    child.material.transparent = false;
-    child.material.opacity = 1.0;
-    child.material.transmission = 0;
-    child.material.needsUpdate = true;
-    
-    if (child.material.map) {
-      child.material.map.anisotropy = 16;
-    }
-  }
-})
-  
-  return (
-    <primitive 
-      object={scene} 
-      scale={scale}
-      rotation={[0, rotation * (Math.PI / 180), 0]}
-    />
-  )
-}
-
-export default function ARViewer() {
-  const [scale, setScale] = useState(1.5)
-  const [rotation, setRotation] = useState(0)
-  const [color, setColor] = useState('wood')
-  const [autoRotate, setAutoRotate] = useState(false)
-  const [isMobile, setIsMobile] = useState(false)
-  const [isPanelOpen, setIsPanelOpen] = useState(true)
-
-  useEffect(() => {
-    setIsMobile(window.innerWidth <= 768)
-  }, [])
 
   const colors = {
     wood: { name: '원목', color: '#C19A6B' },
@@ -58,69 +23,54 @@ export default function ARViewer() {
     metal: { name: '메탈', color: '#A8A8A8' }
   }
 
-  const handleReset = () => {
-    setScale(1.5)
-    setRotation(0)
-    setAutoRotate(false)
-  }
-
   const buttonSize = isMobile ? '45px' : '50px'
   const buttonGap = isMobile ? '8px' : '10px'
 
   return (
-    <div style={{ width: '100vw', height: '100vh', background: '#f5f5f5', position: 'relative' }}>
-      <div style={{
-        position: 'absolute',
-        top: '80px',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        background: 'rgba(0,0,0,0.9)',
-        color: 'white',
-        padding: isMobile ? '8px 15px' : '12px 20px',
-        borderRadius: '8px',
-        zIndex: 999,
-        textAlign: 'center',
-      }}>
-        <div style={{ fontSize: isMobile ? '11px' : '14px', fontWeight: 'bold' }}>
-          📱 AR 미리보기 모드
-        </div>
-        <div style={{ fontSize: isMobile ? '9px' : '11px', color: '#aaa', marginTop: '2px' }}>
-          실제 AR은 스마트폰에서만 작동합니다
-        </div>
-      </div>
-
-      <div style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-      }}>
-        <Canvas 
-          camera={{ position: [2, 1.5, 3], fov: 50 }}
-          gl={{ 
-            antialias: true,
-            toneMapping: THREE.ACESFilmicToneMapping,
-            toneMappingExposure: 1.0,
-            outputColorSpace: THREE.SRGBColorSpace,
-            pixelRatio: Math.min(window.devicePixelRatio, 2)
+    <div style={{ width: '100vw', height: '100vh', position: 'relative', background: '#f5f5f5' }}>
+      {/* model-viewer */}
+      <model-viewer
+        ref={modelViewerRef}
+        src={modelPath[color]}
+        ar
+        ar-modes="webxr scene-viewer quick-look"
+        camera-controls
+        touch-action="pan-y"
+        shadow-intensity="1"
+        camera-orbit="45deg 75deg 3m"
+        min-camera-orbit="auto auto 2m"
+        max-camera-orbit="auto auto 10m"
+        style={{
+          width: '100%',
+          height: '100%',
+          background: '#f5f5f5'
+        }}
+      >
+        {/* AR 버튼 (iOS/Android 자동 감지) */}
+        <button
+          slot="ar-button"
+          style={{
+            position: 'absolute',
+            bottom: '80px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            background: '#1a1a1a',
+            color: 'white',
+            border: 'none',
+            borderRadius: '25px',
+            padding: '15px 40px',
+            fontSize: '16px',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
+            zIndex: 1000
           }}
         >
-          <ambientLight intensity={1.0} />
-          <directionalLight 
-            position={[5, 5, 5]} 
-            intensity={0.5}
-            color="#ffffff"
-          />
-          <Environment preset="studio" />
-          <Cabinet scale={scale} color={color} rotation={rotation} />
-          <OrbitControls 
-            autoRotate={autoRotate}
-            autoRotateSpeed={2}
-          />
-        </Canvas>
-      </div>
+          📱 AR로 보기
+        </button>
+      </model-viewer>
 
+      {/* 패널 토글 버튼 */}
       <button
         onClick={() => setIsPanelOpen(!isPanelOpen)}
         style={{
@@ -145,6 +95,7 @@ export default function ARViewer() {
         {isPanelOpen ? '◀' : '▶'}
       </button>
 
+      {/* 좌측 컨트롤 패널 */}
       <div style={{
         position: 'absolute',
         top: isMobile ? `calc(${buttonSize} + ${buttonGap} * 2 + 5px)` : `calc(${buttonSize} + ${buttonGap} * 2)`,
@@ -199,84 +150,19 @@ export default function ARViewer() {
           </div>
         </div>
 
-        <div style={{ marginBottom: '12px' }}>
-          <div style={{ 
-            fontSize: isMobile ? '10px' : '11px',
-            fontWeight: 'bold', 
-            marginBottom: '6px',
-            color: '#333'
-          }}>
-            🔄 회전
-          </div>
-          <div style={{ display: 'flex', gap: '4px', marginBottom: '6px' }}>
-            <button
-              onClick={() => setRotation(r => r - 45)}
-              style={{
-                flex: 1,
-                padding: '8px',
-                background: '#1a1a1a',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontSize: isMobile ? '10px' : '11px',
-                fontWeight: 'bold',
-              }}
-            >
-              ← 45°
-            </button>
-            <button
-              onClick={() => setRotation(r => r + 45)}
-              style={{
-                flex: 1,
-                padding: '8px',
-                background: '#1a1a1a',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontSize: isMobile ? '10px' : '11px',
-                fontWeight: 'bold',
-              }}
-            >
-              45° →
-            </button>
-          </div>
-          <label style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            fontSize: isMobile ? '9px' : '10px',
-            cursor: 'pointer',
-            color: '#666'
-          }}>
-            <input
-              type="checkbox"
-              checked={autoRotate}
-              onChange={(e) => setAutoRotate(e.target.checked)}
-              style={{ marginRight: '5px' }}
-            />
-            자동 회전
-          </label>
+        <div style={{
+          fontSize: isMobile ? '9px' : '10px',
+          color: '#666',
+          padding: '10px',
+          background: '#f9f9f9',
+          borderRadius: '4px',
+          lineHeight: '1.4'
+        }}>
+          💡 스마트폰에서 "AR로 보기" 버튼을 눌러 실제 공간에 배치해보세요!
         </div>
-
-        <button
-          onClick={handleReset}
-          style={{
-            width: '100%',
-            padding: '10px',
-            background: '#666',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontSize: isMobile ? '10px' : '11px',
-            fontWeight: 'bold',
-          }}
-        >
-          ↺ 리셋
-        </button>
       </div>
 
+      {/* 하단 제품 정보 */}
       <div style={{
         position: 'absolute',
         bottom: '15px',
@@ -298,7 +184,3 @@ export default function ARViewer() {
     </div>
   )
 }
-
-useGLTF.preload('/models/Matchum_cabinet(wood).glb')
-useGLTF.preload('/models/Matchum_cabinet(resin).glb')
-useGLTF.preload('/models/Matchum_cabinet(metal).glb')
