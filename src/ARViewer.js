@@ -38,7 +38,8 @@ export default function ARViewer() {
         camera-controls
         touch-action="pan-y"
         shadow-intensity="1"
-        camera-orbit="45deg 75deg 3m"
+        camera-orbit="0deg 75deg 3.5m"
+        field-of-view="45deg"
         min-camera-orbit="auto auto 2m"
         max-camera-orbit="auto auto 10m"
         style={{
