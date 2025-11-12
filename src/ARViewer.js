@@ -27,14 +27,17 @@ export default function ARViewer() {
   const buttonGap = isMobile ? '8px' : '10px'
 
   return (
-    <div style={{ width: '100vw', height: '100vh', position: 'relative', background: '#f5f5f5' }}>
+    <div style={{
+       width: '100vw',
+       height: 'calc(100vh - 200px)',
+       marginTop: '70px',
+       position: 'relative', background: '#f5f5f5' }}>
       {/* model-viewer */}
       <model-viewer
   ref={modelViewerRef}
   src={modelPath[color]}
   ar
-  ar-modes="quick-look scene-viewer webxr"
-  ios-src={modelPath[color]}
+  ar-modes="scene-viewer quick-look"
   ar-scale="auto"
         camera-controls
         touch-action="pan-y"
@@ -53,7 +56,7 @@ export default function ARViewer() {
           slot="ar-button"
           style={{
             position: 'absolute',
-            bottom: '80px',
+            bottom: '120px',
             left: '50%',
             transform: 'translateX(-50%)',
             background: '#1a1a1a',
