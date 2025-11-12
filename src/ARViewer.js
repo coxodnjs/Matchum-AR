@@ -30,10 +30,12 @@ export default function ARViewer() {
     <div style={{ width: '100vw', height: '100vh', position: 'relative', background: '#f5f5f5' }}>
       {/* model-viewer */}
       <model-viewer
-        ref={modelViewerRef}
-        src={modelPath[color]}
-        ar
-        ar-modes="webxr scene-viewer quick-look"
+  ref={modelViewerRef}
+  src={modelPath[color]}
+  ar
+  ar-modes="quick-look scene-viewer webxr"
+  ios-src={modelPath[color]}
+  ar-scale="auto"
         camera-controls
         touch-action="pan-y"
         shadow-intensity="1"
