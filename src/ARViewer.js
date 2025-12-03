@@ -35,6 +35,7 @@ export default function ARViewer() {
         ar
         ar-modes="scene-viewer quick-look"
         ar-scale="auto"
+        scale="1.5 1.5 1.5"
         camera-controls
         touch-action="pan-y"
         shadow-intensity="1"
