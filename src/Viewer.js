@@ -280,7 +280,7 @@ export default function Viewer() {
           맞춤장 (Matchum Cabinet)
         </div>
         <div style={{ fontSize: isMobile ? '10px' : '11px', color: '#666' }}>
-          한옥 스타일 · {colors[color].name}
+          한옥 스타일 · {colors[color].name} · W1260 × D810 × H1245
         </div>
       </div>
     </div>
