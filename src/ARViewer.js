@@ -28,7 +28,6 @@ export default function ARViewer() {
 
   return (
     <div style={{ width: '100vw', height: '100vh', position: 'relative', background: '#f5f5f5' }}>
-      {/* model-viewer */}
       <model-viewer
         ref={modelViewerRef}
         src={modelPath[color]}
@@ -49,7 +48,6 @@ export default function ARViewer() {
           background: '#f5f5f5'
         }}
       >
-        {/* AR 버튼 */}
         <button
           slot="ar-button"
           style={{
@@ -73,7 +71,6 @@ export default function ARViewer() {
         </button>
       </model-viewer>
 
-      {/* 패널 토글 버튼 */}
       <button
         onClick={() => setIsPanelOpen(!isPanelOpen)}
         style={{
@@ -98,7 +95,6 @@ export default function ARViewer() {
         {isPanelOpen ? '◀' : '▶'}
       </button>
 
-      {/* 좌측 컨트롤 패널 */}
       <div style={{
         position: 'absolute',
         top: isMobile ? `calc(${buttonSize} + ${buttonGap} * 2 + 5px)` : `calc(${buttonSize} + ${buttonGap} * 2)`,
@@ -165,7 +161,6 @@ export default function ARViewer() {
         </div>
       </div>
 
-      {/* 하단 제품 정보 */}
       <div style={{
         position: 'absolute',
         bottom: '15px',
